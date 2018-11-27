@@ -25,43 +25,44 @@ var arrayPhotos = getArrayObjects(25);
  * @param {int} min - Минимальное значение.
  * @param {int} max - Максимальное значение.
  */
-function getRandomInRange (min, max) {
+function getRandomInRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-
-};
+}
 
 /**
  * Создаёт массив значений от min до max.
  * @param {int} min - Минимальное значение.
  * @param {int} max - Максимальное значение.
  */
-function getArrayFromRange (min, max) {
+function getArrayFromRange(min, max) {
   for (var i = min, arrayValue = []; i <= max; i++) {
     arrayValue.push(i);
   }
 
   return arrayValue;
-};
+}
 
 /**
  * Возвращает уникальное число из массива чисел.
  * @param {array} arrayNumbers - Массив чисел.
  */
-function getUniqueValue (arrayNumbers) {
+function getUniqueValue(arrayNumbers) {
   if (arrayNumbers.length > 0) {
     var randomIndex = getRandomInRange(0, arrayNumbers.length - 1);
     var randomValue = arrayNumbers[randomIndex];
     arrayNumbers.splice(randomIndex, 1);
 
     return randomValue;
+  } else {
+    return 'Массив значений пуст.';
   }
-};
+}
 
 /**
  * Создаёт комментарий, из одного или двух случайных предложений.
  * @param {array} arrayComments - Массив строк.
  */
-function getComment (arrayComments) {
+function getComment(arrayComments) {
   var arrayStroke = [];
   var comment = '';
   var part = 1;
@@ -82,13 +83,13 @@ function getComment (arrayComments) {
   }
 
   return comment;
-};
+}
 
 /**
  * Создаёт случайное количество комментариев к одному объекту в виде массива строк.
  * @param {array} arrayComments - Массив строк.
  */
-function getArrayComment (arrayComments) {
+function getArrayComment(arrayComments) {
   var countComments = getRandomInRange(1, 10);
   var assistArray = [];
 
@@ -97,21 +98,21 @@ function getArrayComment (arrayComments) {
   }
 
   return assistArray;
-};
+}
 
 /**
  * Возвращает случайный элемент массива.
  * @param {array} array - Массив строк.
  */
-function getRandomElementFromArray (array) {
+function getRandomElementFromArray(array) {
   return array[getRandomInRange(0, array.length - 1)];
-};
+}
 
 /**
  * Создаёт массив объектов.
  * @param {int} count - Количество объектов.
  */
-function getArrayObjects (count) {
+function getArrayObjects(count) {
   var array = [];
   array.length = count;
 
@@ -130,7 +131,7 @@ function getArrayObjects (count) {
   }
 
   return array;
-};
+}
 
 /**
  * Подготовка к созданию изображений на основе шаблона, с их последующей вставкой в блок 'pictures'.
@@ -142,7 +143,7 @@ var similarPictureTemplate = document.querySelector('#picture').content.querySel
  * Создаёт изображение.
  * @param {object} picture - На основе свойств этого объекта создаётся изображение.
  */
-function renderPicture (picture) {
+function renderPicture(picture) {
   var pictureElement = similarPictureTemplate.cloneNode(true);
 
   pictureElement.querySelector('.picture__img').src = picture.url;
@@ -150,13 +151,13 @@ function renderPicture (picture) {
   pictureElement.querySelector('.picture__comments').textContent = picture.comments;
 
   return pictureElement;
-};
+}
 
 /**
  * Создаёт множество изображений, и импортирует их в 'blockPictures'.
  * @param {array} arrayPicture - Массив объектов.
  */
- function renderPictureList (arrayPicture) {
+function renderPictureList(arrayPicture) {
   var fragment = document.createDocumentFragment();
 
   for (var i = 0; i < arrayPicture.length; i++) {
@@ -164,7 +165,7 @@ function renderPicture (picture) {
   }
 
   blockPictures.appendChild(fragment);
-};
+}
 
 renderPictureList(arrayPhotos);
 
@@ -172,7 +173,7 @@ renderPictureList(arrayPhotos);
  * Создаёт увеличенное изображение.
  * @param {object} element - На основе свойств этого объекта создаются большое изображение, комментарии, количество лайков фотографии.
  */
-function renderBigPicture (element) {
+function renderBigPicture(element) {
   var bigPicture = document.querySelector('.big-picture');
   var likes = document.querySelector('.likes-count');
   var commentsCount = document.querySelector('.comments-count');
@@ -219,8 +220,6 @@ function renderBigPicture (element) {
    * Переопределяем описание фотографии.
    */
   descriptionPhoto.textContent = element.description;
-
-  console.log(commentsList);
-};
+}
 
 renderBigPicture(arrayPhotos[0]);
