@@ -32,33 +32,6 @@ function getRandomInRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Создаёт массив значений от min до max.
-// @param {number} min - Минимальное значение.
-// @param {number} max - Максимальное значение.
-// @returns {array} arrayValue - Массив значений.
-function getArrayFromRange(min, max) {
-  for (var i = min, arrayValue = []; i <= max; i++) {
-    arrayValue.push(i);
-  }
-
-  return arrayValue;
-}
-
-// Возвращает уникальное число из массива чисел.
-// @param {array} arrayNumbers - Массив чисел.
-// @returns {number} randomValue - Уникальное значение.
-function getUniqueValue(arrayNumbers) {
-  if (arrayNumbers.length > 0) {
-    var randomIndex = getRandomInRange(0, arrayNumbers.length - 1);
-    var randomValue = arrayNumbers[randomIndex];
-    arrayNumbers.splice(randomIndex, 1);
-
-    return randomValue;
-  } else {
-      return 'Массив значений пуст.';
-  }
-}
-
 // Создаёт комментарий, из одного или двух случайных предложений.
 // @param {array} arrayComments - Массив строк.
 // @returns {string} comment - Комментарий.
@@ -100,9 +73,6 @@ function getRandomElementFromArray(array) {
 // @param {number} count - Количество объектов.
 // @returns {array} - Массив объектов, изображений-миниатюр, с адресами изображений, количеством лайков, описанием.
 function getArrayObjects(count) {
-  // Создаёт массив изображений с номерами от 1 до 25.
-  var imageNumbersArray = getArrayFromRange(1, 25);
-
   for (var i = 0, array = []; i < count; i++) {
     array[i] = {
       url: 'photos/' + (i + 1) + '.jpg',
@@ -201,19 +171,3 @@ function renderBigPicture(element) {
 }
 
 renderBigPicture(arrayPhotos[0]);
-
-var picturesElements = document.querySelectorAll('.picture__img');
-
-picturesElements.forEach(function (item) {
-  renderBigPicture(arrayPhotos[Math.floor(Math.random() * (25 - 1) + 1)]);
-
-  item.addEventListener('click', function () {
-    var bigPicture = document.querySelector('.big-picture');
-    bigPicture.classList.remove('hidden');
-  });
-});
-
-document.querySelector('.big-picture__cancel').addEventListener('click', function () {
-  var bigPicture = document.querySelector('.big-picture');
-  bigPicture.classList.add('hidden');
-});
