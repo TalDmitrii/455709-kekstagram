@@ -23,6 +23,8 @@ var commentCount = document.querySelector('.social__comment-count');
 commentCount.classList.add('visually-hidden');
 var commentsLoader = document.querySelector('.comments-loader');
 commentsLoader.classList.add('visually-hidden');
+var bigPicture = document.querySelector('.big-picture');
+var ESC_CODE = 27;
 
 // Возвращает случайное число в интервале от min до max.
 // @param {number} min - Минимальное значение.
@@ -51,7 +53,7 @@ function getComment(arrayComments) {
 // Создаёт случайное количество комментариев к одному объекту в виде массива строк.
 // @param {array} arrayComments - Массив строк.
 // @returns {array} assistArray - Комментарий, в виде массива строк.
-function getArrayComment(arrayComments) {
+function getArrayComments(arrayComments) {
   var countComments = getRandomInRange(1, 10);
   var assistArray = [];
 
@@ -77,7 +79,7 @@ function getArrayObjects(count) {
     array[i] = {
       url: 'photos/' + (i + 1) + '.jpg',
       likes: getRandomInRange(15, 200),
-      comments: getArrayComment(comments),
+      comments: getArrayComments(comments),
       description: getRandomElementFromArray(description)
     };
   }
@@ -104,17 +106,17 @@ function renderPicture(picture) {
 
 // Создаёт множество изображений, и импортирует их в 'blockPictures'.
 // @param {array} arrayPicture - Массив объектов.
-function renderPictureList(arrayPicture) {
+function renderPicturesList(arrayPicture, block) {
   var fragment = document.createDocumentFragment();
 
   for (var i = 0; i < arrayPicture.length; i++) {
     fragment.appendChild(renderPicture(arrayPicture[i]));
   }
 
-  blockPictures.appendChild(fragment);
+  block.appendChild(fragment);
 }
 
-renderPictureList(arrayPhotos);
+renderPicturesList(arrayPhotos, blockPictures);
 
 // Создаёт комментарий к увеличенному изображению.
 // Комментарий является элементом списка, теги 'img' и 'p' будут в нём содержаться.
@@ -148,21 +150,15 @@ function renderComment(someObject, listToThisComment) {
   }
 }
 
-// Создаёт увеличенное изображение.
-// @param {object} element - На основе свойств этого объекта создаются большое изображение, комментарии, количество лайков фотографии.
+// Создаёт описание для большой фотографии, и другую информацию для неё.
+// @param {object} element - На основе свойств этого объекта создаётся большое изображение, комментарии, количество лайков фотографии.
 function renderBigPicture(element) {
-  var bigPicture = document.querySelector('.big-picture');
   var likes = document.querySelector('.likes-count');
   var commentsCount = document.querySelector('.comments-count');
   var commentsList = document.querySelector('.social__comments');
   var descriptionPhoto = document.querySelector('.social__caption');
 
-  // Делает большое изображение открытым для пользователя.
-  // bigPicture.classList.remove('hidden');
-
   // Переопределяет свойства объекта(фотографии), на основе свойств аргумента функции.
-  bigPicture.querySelector('.big-picture__img')
-            .querySelector('img').src = element.url;
   likes.textContent = element.likes;
   commentsCount.textContent = element.comments.length;
   descriptionPhoto.textContent = element.description;
@@ -170,4 +166,71 @@ function renderBigPicture(element) {
   renderComment(element, commentsList);
 }
 
-renderBigPicture(arrayPhotos[0]);
+// Добавляет обработчик события на мини-фотографию, по клику открывает полноразмерное изображение, создаёт соответствующие комментарии, кол-во лайков и другие параметры.
+function addPhotoEventListener(minPhoto, urlFromFolder, objectPhoto) {
+  minPhoto.addEventListener('click', function () {
+    bigPicture.querySelector('.big-picture__img img').src = urlFromFolder;
+    bigPicture.classList.remove('hidden');
+    renderBigPicture(objectPhoto);
+  });
+}
+
+var photosPreview = blockPictures.querySelectorAll('a');
+
+for (var i = 0; i < photosPreview.length; i++) {
+  addPhotoEventListener(photosPreview[i], 'photos/' + (i + 1) + '.jpg', arrayPhotos[i]);
+}
+
+// Закрывает полноразмерное изображение по клику.
+var closeButton = bigPicture.querySelector('.big-picture__cancel');
+closeButton.addEventListener('click', function () {
+  bigPicture.classList.add('hidden');
+});
+
+// Закрывает полноразмерное изображение по клавише ESC.
+window.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESC_CODE) {
+    bigPicture.classList.add('hidden');
+  }
+});
+
+// Открывает форму загрузки изображения при наступлении события 'change' .
+var uploadFile = blockPictures.querySelector('#upload-file');
+var uploadForm = blockPictures.querySelector('.img-upload__overlay');
+var uploadFormClose = blockPictures.querySelector('.img-upload__cancel');
+
+uploadFile.addEventListener('change', function () {
+  uploadForm.classList.remove('hidden');
+
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ESC_CODE) {
+      uploadForm.classList.add('hidden');
+    }
+  });
+});
+
+// Удаляет значение 'input'.
+uploadFile.addEventListener('click', function () {
+  uploadFile.value = '';
+});
+
+// Закрывает форму загрузки фотографии.
+uploadFormClose.addEventListener('click', function () {
+  uploadForm.classList.add('hidden');
+});
+
+var effectsList = blockPictures.querySelector('.effects__list');
+var effects = effectsList.querySelectorAll('.effects__label');
+var currentEffect = document.querySelector('.img-upload__preview img');
+
+// Удаляет классы фильтра, и добавляет новые.
+function addPhotoEffect(effect) {
+  effect.addEventListener('click', function (evt) {
+    currentEffect.className = '';
+    currentEffect.classList.add(evt.target.classList[1]);
+  });
+}
+
+for (var j = 0; j < effects.length; j++) {
+  addPhotoEffect(effects[j]);
+}
