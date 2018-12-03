@@ -24,7 +24,16 @@ commentCount.classList.add('visually-hidden');
 var commentsLoader = document.querySelector('.comments-loader');
 commentsLoader.classList.add('visually-hidden');
 var bigPicture = document.querySelector('.big-picture');
+var bigPictureImage = bigPicture.querySelector('.big-picture__img img');
 var ESC_CODE = 27;
+var closeButton = bigPicture.querySelector('.big-picture__cancel');
+var blockPictures = document.querySelector('.pictures');
+var similarPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
+var uploadFile = blockPictures.querySelector('#upload-file');
+var uploadForm = blockPictures.querySelector('.img-upload__overlay');
+var buttonUploadFormClose = blockPictures.querySelector('.img-upload__cancel');
+var effectsList = blockPictures.querySelector('.effects__list');
+var currentEffect = document.querySelector('.img-upload__preview img');
 
 // Возвращает случайное число в интервале от min до max.
 // @param {number} min - Минимальное значение.
@@ -87,10 +96,6 @@ function getArrayObjects(count) {
   return array;
 }
 
-// Подготовка к созданию изображений на основе шаблона, с их последующей вставкой в блок 'pictures'.
-var blockPictures = document.querySelector('.pictures');
-var similarPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-
 // Создаёт изображение.
 // @param {object} picture - На основе свойств этого объекта создаётся изображение.
 // @returns {pictureElement} - Создаёт изображение на основе шаблона.
@@ -122,84 +127,83 @@ renderPicturesList(arrayPhotos, blockPictures);
 // Комментарий является элементом списка, теги 'img' и 'p' будут в нём содержаться.
 // @param {object} someObject - На основе свойства 'comment' этого объекта создаются комментарии.
 // @param {object} listToThisComment - В этот список добавляются комментарии.
-function renderComment(someObject, listToThisComment) {
-  // Переменная для вывода не более пяти комментариев.
-  var openPhotoCountComments = 2;
+// function renderComment(someObject, listToThisComment) {
+//   // Переменная для вывода не более пяти комментариев.
+//   var openPhotoCountComments = 3;
 
-  for (var i = 0; i < someObject.comments.length; i++) {
-    var comment = document.createElement('li');
-    var avatarUser = document.createElement('img');
-    var textComment = document.createElement('p');
+//   for (var i = 0; i < someObject.comments.length; i++) {
+//     var comment = document.createElement('li');
+//     var avatarUser = document.createElement('img');
+//     var textComment = document.createElement('p');
 
-    // Определяет свойства объекта(комментария), добавляет классы тегам.
-    comment.classList.add('social__comment');
-    avatarUser.classList.add('social__picture');
-    avatarUser.src = 'img/avatar-' + getRandomInRange(1, 6) + '.svg';
-    avatarUser.alt = 'Аватар комментатора фотографии';
-    avatarUser.width = 35;
-    avatarUser.height = 35;
-    textComment.classList.add('social__text');
-    textComment.textContent = someObject.comments[i];
-    comment.appendChild(avatarUser);
-    comment.appendChild(textComment);
-    listToThisComment.appendChild(comment);
+//     // Определяет свойства объекта(комментария), добавляет классы тегам.
+//     comment.classList.add('social__comment');
+//     avatarUser.classList.add('social__picture');
+//     avatarUser.src = 'img/avatar-' + getRandomInRange(1, 6) + '.svg';
+//     avatarUser.alt = 'Аватар комментатора фотографии';
+//     avatarUser.width = 35;
+//     avatarUser.height = 35;
+//     textComment.classList.add('social__text');
+//     textComment.textContent = someObject.comments[i];
+//     comment.appendChild(avatarUser);
+//     comment.appendChild(textComment);
+//     listToThisComment.appendChild(comment);
 
-    if (i > openPhotoCountComments) {
-      comment.classList.add('visually-hidden');
-    }
-  }
-}
+//     if (i > openPhotoCountComments) {
+//       comment.classList.add('visually-hidden');
+//     }
+//   }
+// }
 
 // Создаёт описание для большой фотографии, и другую информацию для неё.
 // @param {object} element - На основе свойств этого объекта создаётся большое изображение, комментарии, количество лайков фотографии.
-function renderBigPicture(element) {
-  var likes = document.querySelector('.likes-count');
-  var commentsCount = document.querySelector('.comments-count');
-  var commentsList = document.querySelector('.social__comments');
-  var descriptionPhoto = document.querySelector('.social__caption');
+function renderBigPictureValues(element) {
+  var bigPictureSocial = document.querySelector('.big-picture__social');
+  var bigPictureLikes = bigPictureSocial.querySelector('.likes-count');
+  // var bigPictureDescriptionPhoto = bigPictureSocial.querySelector('.social__caption');
+  var bigPictureCountComments = bigPictureSocial.querySelector('.comments-count');
+  // var commentsList = bigPictureSocial.querySelector('.social__comments');
 
   // Переопределяет свойства объекта(фотографии), на основе свойств аргумента функции.
-  likes.textContent = element.likes;
-  commentsCount.textContent = element.comments.length;
-  descriptionPhoto.textContent = element.description;
+  bigPictureLikes.textContent = element.children[1].children[1].textContent;
+  bigPictureCountComments.textContent = element.children[1].children[0].textContent;
+  // bigPictureDescriptionPhoto.textContent = element.description;
 
-  renderComment(element, commentsList);
+  // renderComment(element, commentsList);
 }
 
-// Добавляет обработчик события на мини-фотографию, по клику открывает полноразмерное изображение, создаёт соответствующие комментарии, кол-во лайков и другие параметры.
-function addPhotoEventListener(minPhoto, urlFromFolder, objectPhoto) {
-  minPhoto.addEventListener('click', function () {
-    bigPicture.querySelector('.big-picture__img img').src = urlFromFolder;
+// Открывает полноразмерное изображение.
+function openBigPicture(evt) {
+  var target = evt.target;
+  var parentTarget = evt.target.parentNode;
+
+  if (target.tagName === 'IMG') {
+    bigPictureImage.src = evt.target.attributes.src.nodeValue;
+    renderBigPictureValues(parentTarget);
     bigPicture.classList.remove('hidden');
-    renderBigPicture(objectPhoto);
-  });
+  }
 }
 
-var photosPreview = blockPictures.querySelectorAll('a');
+// Добавляется обработчик, открывающий полноразмерное изображение.
+blockPictures.addEventListener('click', openBigPicture);
 
-for (var i = 0; i < photosPreview.length; i++) {
-  addPhotoEventListener(photosPreview[i], 'photos/' + (i + 1) + '.jpg', arrayPhotos[i]);
+// Закрывает полноразмерное изображение.
+function closeFullSizePhoto() {
+  bigPicture.classList.add('hidden');
 }
 
 // Закрывает полноразмерное изображение по клику.
-var closeButton = bigPicture.querySelector('.big-picture__cancel');
-closeButton.addEventListener('click', function () {
-  bigPicture.classList.add('hidden');
-});
+closeButton.addEventListener('click', closeFullSizePhoto);
 
 // Закрывает полноразмерное изображение по клавише ESC.
 window.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ESC_CODE) {
-    bigPicture.classList.add('hidden');
+    closeFullSizePhoto();
   }
 });
 
-// Открывает форму загрузки изображения при наступлении события 'change' .
-var uploadFile = blockPictures.querySelector('#upload-file');
-var uploadForm = blockPictures.querySelector('.img-upload__overlay');
-var uploadFormClose = blockPictures.querySelector('.img-upload__cancel');
-
-uploadFile.addEventListener('change', function () {
+// Открывает форму загрузки изображения.
+function openUploadForm() {
   uploadForm.classList.remove('hidden');
 
   document.addEventListener('keydown', function (evt) {
@@ -207,7 +211,15 @@ uploadFile.addEventListener('change', function () {
       uploadForm.classList.add('hidden');
     }
   });
-});
+}
+
+// Закрывает форму загрузки изображения.
+function closeUploadForm() {
+  uploadForm.classList.add('hidden');
+}
+
+// Открывает форму загрузки изображения при наступлении события 'change'.
+uploadFile.addEventListener('change', openUploadForm);
 
 // Удаляет значение 'input'.
 uploadFile.addEventListener('click', function () {
@@ -215,22 +227,18 @@ uploadFile.addEventListener('click', function () {
 });
 
 // Закрывает форму загрузки фотографии.
-uploadFormClose.addEventListener('click', function () {
-  uploadForm.classList.add('hidden');
-});
+buttonUploadFormClose.addEventListener('click', closeUploadForm);
 
-var effectsList = blockPictures.querySelector('.effects__list');
-var effects = effectsList.querySelectorAll('.effects__label');
-var currentEffect = document.querySelector('.img-upload__preview img');
+// Обрабатывает переключение фильтра.
+function useFilter(evt) {
+  var target = evt.target;
 
-// Удаляет классы фильтра, и добавляет новые.
-function addPhotoEffect(effect) {
-  effect.addEventListener('click', function (evt) {
+  if (target.tagName === 'INPUT') {
     currentEffect.className = '';
-    currentEffect.classList.add(evt.target.classList[1]);
-  });
+    var nextElem = target.nextElementSibling.children[0];
+    currentEffect.classList.add(nextElem.classList[1]);
+  }
 }
 
-for (var j = 0; j < effects.length; j++) {
-  addPhotoEffect(effects[j]);
-}
+// Добавляется обработчик переключения фильтра.
+effectsList.addEventListener('click', useFilter);
