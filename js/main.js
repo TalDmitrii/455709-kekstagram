@@ -127,15 +127,25 @@ function renderPicturesList(arrayPicture, block) {
 
 renderPicturesList(arrayPhotos, blockPictures);
 
+// Удаляет элементы списка.
+// @param {object} list - Список подвергающийся очистке.
+function clearList(list) {
+  var customComments = list.querySelectorAll('li');
+
+  for (var i = 0; i < customComments.length; i++) {
+    list.removeChild(customComments[i]);
+  }
+}
 
 // Создаёт комментарий к увеличенному изображению.
 // Комментарий является элементом списка, теги 'img' и 'p' будут в нём содержаться.
 // @param {object} someObject - На основе свойства 'comment' этого объекта создаются комментарии.
 // @param {object} listToThisComment - В этот список добавляются комментарии.
-function renderComment(someObject, listToThisComment) {
-  // Переменная для вывода не более пяти комментариев.
-  // 2 комментария уже есть в разметке.
-  var сountComments = 5 - 2;
+
+function renderComment(someObject, listToPushComment) {
+  var countComments = 5;
+
+  clearList(listToPushComment);
 
   for (var i = 0; i < someObject.comments.length; i++) {
     var comment = document.createElement('li');
@@ -153,9 +163,9 @@ function renderComment(someObject, listToThisComment) {
     textComment.textContent = someObject.comments[i];
     comment.appendChild(avatarUser);
     comment.appendChild(textComment);
-    listToThisComment.appendChild(comment);
+    listToPushComment.appendChild(comment);
 
-    if (i > сountComments - 1) {
+    if (i > countComments - 1) {
       comment.classList.add('visually-hidden');
     }
   }
@@ -254,9 +264,9 @@ effectsList.addEventListener('click', useFilter);
 // @param {array} valuesArray - Проверяемый массив.
 // @returns {bool}.
 function sortArray(valuesArray) {
-  for (var i = 0; i < valuesArray.length; i++) {
-    var x;
+  var x = false;
 
+  for (var i = 0; i < valuesArray.length; i++) {
     for (var j = i + 1; j < valuesArray.length; j++) {
       if (valuesArray[i].toLowerCase() === valuesArray[j].toLowerCase()) {
         x = true;
@@ -272,20 +282,22 @@ function sortArray(valuesArray) {
 function checkInput(evt) {
   var target = evt.target;
   var stringHashtags = evt.target.value;
-  var arrayHashtags = stringHashtags.split(' ', 5);
+  var arrayHashtags = stringHashtags.split(' ');
 
   for (var i = 0; i < arrayHashtags.length; i++) {
-    var hasgtag = arrayHashtags[i];
-    var hasgtagSymbols = hasgtag.split('');
+    var hashtag = arrayHashtags[i];
+    var hashtagSymbols = hashtag.split('');
 
-    if (hasgtagSymbols[0] !== '#') {
-      target.setCustomValidity('Хэш-тег начинается с #');
-    } else if (hasgtagSymbols.length > 20) {
-      target.setCustomValidity('Длина одного хэш-тега должна быть не более 20 символов');
-    } else if (hasgtagSymbols.length < 2) {
-      target.setCustomValidity('Длина одного хэш-тега должна быть не менее 2 символов');
+    if ((hashtag.length > 0) && (hashtagSymbols[0] !== '#')) {
+      target.setCustomValidity('Хеш-тег начинается с #');
+    } else if (hashtagSymbols.length > 20) {
+      target.setCustomValidity('Длина одного хеш-тега должна быть не более 20 символов');
+    } else if (hashtagSymbols.length > 0 && hashtagSymbols.length < 2) {
+      target.setCustomValidity('Длина одного хеш-тега должна быть не менее 2 символов');
+    } else if (arrayHashtags.length > 5) {
+      target.setCustomValidity('Не более 5 хеш-тегов');
     } else if (sortArray(arrayHashtags)) {
-      target.setCustomValidity('Одинаковых хэш-тегов не должно быть');
+      target.setCustomValidity('Одинаковых хеш-тегов не должно быть');
     } else {
       target.setCustomValidity('');
     }
