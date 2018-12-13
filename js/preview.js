@@ -12,6 +12,8 @@
   var closeButton = bigPicture.querySelector('.big-picture__cancel');
   var bigPictureImage = bigPicture.querySelector('.big-picture__img img');
 
+  window.backend.load(renderComment);
+
   // Удаляет элементы списка.
   // @param {object} list - Список подвергающийся очистке.
   function clearList(list) {
@@ -26,12 +28,12 @@
   // Комментарий является элементом списка, теги 'img' и 'p' будут в нём содержаться.
   // @param {object} someObject - На основе свойства 'comment' этого объекта создаются комментарии.
   // @param {object} listToThisComment - В этот список добавляются комментарии.
-  function renderComment(someObject, listToPushComment) {
+  function renderComment(someObject) {
     var countComments = 5;
 
-    clearList(listToPushComment);
+    clearList(commentsList);
 
-    for (var i = 0; i < someObject.comments.length; i++) {
+    for (var i = 0; i < someObject[0].comments.length; i++) {
       var comment = document.createElement('li');
       var avatarUser = document.createElement('img');
       var textComment = document.createElement('p');
@@ -39,24 +41,21 @@
       // Определяет свойства объекта(комментария), добавляет классы тегам.
       comment.classList.add('social__comment');
       avatarUser.classList.add('social__picture');
-      avatarUser.src = 'img/avatar-' + window.data.getRandomInRange(1, 6) + '.svg';
+      avatarUser.src = someObject[0].comments[i].avatar;
       avatarUser.alt = 'Аватар комментатора фотографии';
       avatarUser.width = 35;
       avatarUser.height = 35;
       textComment.classList.add('social__text');
-      textComment.textContent = someObject.comments[i];
+      textComment.textContent = someObject[0].comments[i].message;
       comment.appendChild(avatarUser);
       comment.appendChild(textComment);
-      listToPushComment.appendChild(comment);
+      commentsList.appendChild(comment);
 
       if (i > countComments - 1) {
         comment.classList.add('visually-hidden');
       }
     }
   }
-
-  // Комментарии к увеличенному изображению.
-  renderComment(window.data.arrayPhotos[0], commentsList);
 
   // Создаёт описание для большой фотографии, и другую информацию для неё.
   // @param {object} element - На основе свойств этого объекта создаётся большое изображение, комментарии, количество лайков фотографии.

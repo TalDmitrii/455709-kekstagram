@@ -2,6 +2,8 @@
 
 (function () {
   var ESC_CODE = 27;
+  var pageMain = document.querySelector('main');
+  var form = document.querySelector('.img-upload__form');
   var uploadFile = document.querySelector('#upload-file');
   var uploadForm = document.querySelector('.img-upload__overlay');
   var buttonUploadFormClose = document.querySelector('.img-upload__cancel');
@@ -11,8 +13,11 @@
   currentEffect.style.userSelect = 'none';
   var textHashtag = document.querySelector('.text__hashtags');
   var textDescription = document.querySelector('.text__description');
+  var successMessage = document.querySelector('#success').content.querySelector('.success');
+  var errorMessage = document.querySelector('#error').content.querySelector('.error');
 
   var effect = document.querySelector('.effect-level');
+  var effectNone = document.querySelector('#effect-none');
   var effectLevel = effect.querySelector('.effect-level__value');
   var effectHandle = effect.querySelector('.effect-level__pin');
   var effectLine = effect.querySelector('.effect-level__line');
@@ -20,6 +25,67 @@
   var isDraggable = false;
   var cursorStartX;
   var pinStartX;
+
+  // Отправляет данные формы.
+  form.addEventListener('submit', function (evt) {
+    // Сбрасывает стандартное поведение формы.
+    evt.preventDefault();
+
+    // Отправляет данные, обрабатывает ответ.
+    window.backend.upload(new FormData(form), successUploadForm, errorUploadForm);
+  });
+
+  // Функция сообщает о неуспешной попытке загрузки данных.
+  function errorUploadForm() {
+    // Скрывает форму.
+    uploadForm.classList.add('hidden');
+
+    // Открывает сообщение о неудачной попытке загрузки данных.
+    renderMessage(false);
+  }
+
+  // Функция сообщает о успешной попытке загрузки данных.
+  function successUploadForm() {
+    // Скрывает форму.
+    uploadForm.classList.add('hidden');
+
+    // Сбрасывает значения формы на дефолтные.
+    textHashtag.value = '';
+    textDescription.value = '';
+    currentEffect.className = '';
+    currentEffect.style.filter = '';
+
+    // Открывает сообщение о удачной попытке загрузки данных.
+    renderMessage(true);
+  }
+
+  // Создаёт сообщение о загрузке данных из формы.
+  // @param {object} isSuccess - Статус сообщения: отправлено или нет.
+  function renderMessage(isSuccess) {
+    var message;
+
+    // Клонирует шаблон в зависимости от статуса.
+    if (isSuccess) {
+      message = successMessage.cloneNode(true);
+    } else {
+      message = errorMessage.cloneNode(true);
+    }
+
+    // Добавляет сообщение в тег 'main'.
+    pageMain.appendChild(message);
+
+    // TODO: пока не работает.
+    // Обработчик закрывает сообщение об отправке.
+    // document.addEventListener('keydown', escCloseMessage);
+  }
+
+  // TODO: пока не работает.
+  // Закрывает сообщение об отправке по ESC.
+  // function escCloseMessage(evt) {
+  //   if (evt.keyCode === ESC_CODE) {
+  //     document.querySelector('.success').classList.add('visually-hidden');
+  //   }
+  // }
 
   // Закрывает форму загрузки изображения по ESC.
   function escCloseUploadForm(evt) {
@@ -82,15 +148,15 @@
   }
 
   // При клике на первом элементе без эффекта, скрывает слайдер.
-  var effectNone = document.querySelector('#effect-none');
-
   effectNone.addEventListener('click', addEffectLineHidden);
   effectNone.addEventListener('blur', removeEffectLineHidden);
 
+  // Скрывает слайдер.
   function addEffectLineHidden() {
     effect.classList.add('visually-hidden');
   }
 
+  // Показывает слайдер.
   function removeEffectLineHidden() {
     effect.classList.remove('visually-hidden');
   }
@@ -142,6 +208,7 @@
     }
   }
 
+  // Проверяет поле с хеш-тегами на валидность.
   textHashtag.addEventListener('input', checkInput);
 
   // При фокусе на элементе 'textHashtag' удаляет обработчик закрытия формы по ESC.
@@ -149,6 +216,7 @@
     document.removeEventListener('keydown', escCloseUploadForm);
   });
 
+  // При фокусе на элементе 'textDescription' удаляет обработчик закрытия формы по ESC.
   textDescription.addEventListener('focus', function () {
     document.removeEventListener('keydown', escCloseUploadForm);
   });
@@ -158,6 +226,7 @@
     document.addEventListener('keydown', escCloseUploadForm);
   });
 
+  // При снятии фокуса с элемента 'textDescription' добавляет обработчик закрытия формы по ESC.
   textDescription.addEventListener('blur', function () {
     document.addEventListener('keydown', escCloseUploadForm);
   });
