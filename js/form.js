@@ -2,6 +2,8 @@
 
 (function () {
   var ESC_CODE = 27;
+  var pageMain = document.querySelector('main');
+  var form = document.querySelector('.img-upload__form');
   var uploadFile = document.querySelector('#upload-file');
   var uploadForm = document.querySelector('.img-upload__overlay');
   var buttonUploadFormClose = document.querySelector('.img-upload__cancel');
@@ -11,15 +13,74 @@
   currentEffect.style.userSelect = 'none';
   var textHashtag = document.querySelector('.text__hashtags');
   var textDescription = document.querySelector('.text__description');
+  var successMessage = document.querySelector('#success').content.querySelector('.success');
+  var errorMessage = document.querySelector('#error').content.querySelector('.error');
 
   var effect = document.querySelector('.effect-level');
-  var effectLevel = effect.querySelector('.effect-level__value');
+  var effectNone = document.querySelector('#effect-none');
   var effectHandle = effect.querySelector('.effect-level__pin');
-  var effectLine = effect.querySelector('.effect-level__line');
   var effectLineDepth = effect.querySelector('.effect-level__depth');
-  var isDraggable = false;
-  var cursorStartX;
-  var pinStartX;
+
+  // Отправляет данные формы.
+  form.addEventListener('submit', function (evt) {
+    // Сбрасывает стандартное поведение формы.
+    evt.preventDefault();
+
+    // Отправляет данные, обрабатывает ответ.
+    window.backend.upload(new FormData(form), successUploadForm, errorUploadForm);
+  });
+
+  // Функция сообщает о неуспешной попытке загрузки данных.
+  function errorUploadForm() {
+    // Скрывает форму.
+    uploadForm.classList.add('hidden');
+
+    // Открывает сообщение о неудачной попытке загрузки данных.
+    renderMessage(false);
+  }
+
+  // Функция сообщает о успешной попытке загрузки данных.
+  function successUploadForm() {
+    // Скрывает форму.
+    uploadForm.classList.add('hidden');
+
+    // Сбрасывает значения формы на дефолтные.
+    textHashtag.value = '';
+    textDescription.value = '';
+    currentEffect.className = '';
+    currentEffect.style.filter = '';
+
+    // Открывает сообщение о удачной попытке загрузки данных.
+    renderMessage(true);
+  }
+
+  // Создаёт сообщение о загрузке данных из формы.
+  // @param {object} isSuccess - Статус сообщения: отправлено или нет.
+  function renderMessage(isSuccess) {
+    var message;
+
+    // Клонирует шаблон в зависимости от статуса.
+    if (isSuccess) {
+      message = successMessage.cloneNode(true);
+    } else {
+      message = errorMessage.cloneNode(true);
+    }
+
+    // Добавляет сообщение в тег 'main'.
+    pageMain.appendChild(message);
+
+    // TODO: пока не работает.
+    // Обработчик закрывает сообщение об отправке.
+    // document.addEventListener('keydown', escCloseMessage);
+  }
+
+  // TODO: пока не работает.
+  // Закрывает сообщение об отправке по ESC.
+  // function escCloseMessage(evt) {
+  //   if (evt.keyCode === ESC_CODE) {
+  //     document.querySelector('.success').classList.add('visually-hidden');
+  //   }
+  // }
 
   // Закрывает форму загрузки изображения по ESC.
   function escCloseUploadForm(evt) {
@@ -43,7 +104,7 @@
   // Открывает форму загрузки изображения при наступлении события 'change'.
   uploadFile.addEventListener('change', openUploadForm);
 
-  // Удаляет значение 'input'.
+  // Удаляет значение в поле загрузки файла - 'input'.
   uploadFile.addEventListener('click', function () {
     uploadFile.value = '';
   });
@@ -82,15 +143,15 @@
   }
 
   // При клике на первом элементе без эффекта, скрывает слайдер.
-  var effectNone = document.querySelector('#effect-none');
-
   effectNone.addEventListener('click', addEffectLineHidden);
   effectNone.addEventListener('blur', removeEffectLineHidden);
 
+  // Скрывает слайдер.
   function addEffectLineHidden() {
     effect.classList.add('visually-hidden');
   }
 
+  // Показывает слайдер.
   function removeEffectLineHidden() {
     effect.classList.remove('visually-hidden');
   }
@@ -142,6 +203,7 @@
     }
   }
 
+  // Проверяет поле с хеш-тегами на валидность.
   textHashtag.addEventListener('input', checkInput);
 
   // При фокусе на элементе 'textHashtag' удаляет обработчик закрытия формы по ESC.
@@ -149,6 +211,7 @@
     document.removeEventListener('keydown', escCloseUploadForm);
   });
 
+  // При фокусе на элементе 'textDescription' удаляет обработчик закрытия формы по ESC.
   textDescription.addEventListener('focus', function () {
     document.removeEventListener('keydown', escCloseUploadForm);
   });
@@ -158,82 +221,8 @@
     document.addEventListener('keydown', escCloseUploadForm);
   });
 
+  // При снятии фокуса с элемента 'textDescription' добавляет обработчик закрытия формы по ESC.
   textDescription.addEventListener('blur', function () {
     document.addEventListener('keydown', escCloseUploadForm);
   });
-
-  // Добавляет обработчик drug-n-drop.
-  effectHandle.addEventListener('mousedown', function (evt) {
-    isDraggable = true;
-
-    cursorStartX = evt.clientX;
-    pinStartX = evt.target.offsetLeft;
-
-    document.addEventListener('mousemove', setPinPosition);
-    document.addEventListener('mouseup', function () {
-      isDraggable = false;
-      document.removeEventListener('mousemove', setPinPosition);
-    });
-  });
-
-  // Расчитывает и устанавливает положение ползунка при drug-n-drop.
-  // @param {object} moveEvt - Объект event.
-  function setPinPosition(moveEvt) {
-    var sliderWidth = effectLine.clientWidth;
-    var percentSliderWidth = sliderWidth / 100;
-
-    if (moveEvt.buttons === 1 && isDraggable) {
-      var cursorShiftX = moveEvt.clientX - cursorStartX;
-      var pinShiftX = pinStartX + cursorShiftX;
-      var pinShiftPercentX = pinShiftX / percentSliderWidth;
-
-      if (pinShiftPercentX > 100) {
-        pinShiftPercentX = 100;
-      } else if (pinShiftPercentX < 0) {
-        pinShiftPercentX = 0;
-      }
-
-      effectHandle.style.left = pinShiftPercentX + '%';
-      effectLineDepth.style.width = pinShiftPercentX + '%';
-      effectLevel.value = Math.round(pinShiftPercentX);
-
-      setEffectValue(effectLevel.value, currentEffect);
-    }
-  }
-
-  // Устанавливает глубину эффекта.
-  // @param {number} percent - Значение глубины эффекта в процентах.
-  // @param {object} currentEffect - Текущий эффект, к которому применяется изменение глубины.
-  function setEffectValue(percent, effectImage) {
-    if (effectImage.className === 'effects__preview--chrome') {
-      effectImage.style.filter = 'grayscale(' + percent / 100 + ')';
-    } else if (effectImage.className === 'effects__preview--sepia') {
-      effectImage.style.filter = 'sepia(' + percent / 100 + ')';
-    } else if (effectImage.className === 'effects__preview--marvin') {
-      effectImage.style.filter = 'invert(' + percent + '%)';
-    } else if (effectImage.className === 'effects__preview--phobos') {
-      effectImage.style.filter = 'blur(' + percent / 33.3 + 'px)';
-    } else if (effectImage.className === 'effects__preview--heat') {
-      effectImage.style.filter = 'brightness(' + (1 + (percent / 50)) + ')';
-    }
-  }
-
-  // Расчитывает и устанавливает положение ползунка при клике.
-  // @param {object} evt - Объект event.
-  function setSliderPosition(evt) {
-    if (evt.target.className === 'effect-level__line' || evt.target.className === 'effect-level__depth') {
-      var sliderWidth = effectLine.clientWidth;
-      var percentSliderWidth = sliderWidth / 100;
-      var pinPositionInPercent = evt.offsetX / percentSliderWidth;
-
-      effectHandle.style.left = pinPositionInPercent + '%';
-      effectLineDepth.style.width = pinPositionInPercent + '%';
-      effectLevel.value = Math.round(pinPositionInPercent);
-
-      setEffectValue(effectLevel.value, currentEffect);
-    }
-  }
-
-  // Устанавливает положение ползунка и соответствующую глубину эффекта.
-  effectLine.addEventListener('click', setSliderPosition);
 })();
