@@ -321,39 +321,38 @@
 
   // Проверяет массив строк на валидность.
   function validateArray(exampleArray, target) {
-    var isValidity = false;
 
-    // TODO:
-    // for (var j = 0; j < exampleArray.length; j++) {
-    //   if (exampleArray[j] === '') {
-    //     exampleArray.splice(exampleArray[j]);
-    //     target.setCustomValidity('Только один пробел');
-    //   }
-    // }
+    var answer;
 
-    // Проверяет каждую строку на валидность.
-    for (var i = 0; i < exampleArray.length; i++) {
-      var hashtag = exampleArray[i];
+    exampleArray.forEach(function (hashtag)  {
       var hashtagSymbols = hashtag.split('');
 
-      if ((hashtag.length > 0) && (hashtagSymbols[0] !== '#')) {
-        target.setCustomValidity('Хеш-тег начинается с #');
-      } else if (hashtagSymbols.length > 20) {
-        target.setCustomValidity('Длина одного хеш-тега должна быть не более 20 символов');
-      } else if (hashtagSymbols.length > 0 && hashtagSymbols.length < 2) {
-        target.setCustomValidity('Длина одного хеш-тега должна быть не менее 2 символов');
-      } else if (exampleArray.length > 5) {
-        target.setCustomValidity('Не более 5 хеш-тегов');
-      } else if (sortArray(exampleArray)) {
-        target.setCustomValidity('Одинаковых хеш-тегов не должно быть');
-      } else {
-        target.setCustomValidity('');
-        isValidity = true;
+      if (!answer) {
+        switch (hashtag !== '') {
+          case ((hashtag.length > 1) && (hashtagSymbols[0] !== '#')):
+            answer = 'Хеш-тег начинается с #';
+            break;
+          case (hashtagSymbols.length > 20):
+            answer = 'Длина одного хеш-тега должна быть не более 20 символов';
+            break;
+          case (hashtagSymbols.length > 0 && hashtagSymbols.length < 2):
+            answer = 'Длина одного хеш-тега должна быть не менее 2 символов';
+            break;
+          case (exampleArray.length > 5):
+            answer = 'Не более 5 хеш-тегов';
+            break;
+          case sortArray(exampleArray):
+            answer = 'Одинаковых хеш-тегов не должно быть';
+            break;
+  
+          default: answer = '';
+        }
       }
-    }
+    });
 
-    return isValidity;
+    target.setCustomValidity(answer);
   }
+  
 
   // Проверяет поле с хеш-тегами на валидность.
   textHashtag.addEventListener('input', checkInput);
