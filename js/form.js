@@ -324,7 +324,7 @@
 
     var answer;
 
-    exampleArray.forEach(function (hashtag)  {
+    exampleArray.forEach(function (hashtag) {
       var hashtagSymbols = hashtag.split('');
 
       if (!answer) {
@@ -344,7 +344,7 @@
           case sortArray(exampleArray):
             answer = 'Одинаковых хеш-тегов не должно быть';
             break;
-  
+
           default: answer = '';
         }
       }
@@ -352,7 +352,6 @@
 
     target.setCustomValidity(answer);
   }
-  
 
   // Проверяет поле с хеш-тегами на валидность.
   textHashtag.addEventListener('input', checkInput);
