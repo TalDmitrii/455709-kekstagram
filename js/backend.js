@@ -14,7 +14,7 @@
       if (xhr.status === 200) {
         onLoad(xhr.status);
       } else {
-        onError(xhr.status);
+        onError(xhr);
       }
     });
 

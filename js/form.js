@@ -2,103 +2,229 @@
 
 (function () {
   var ESC_CODE = 27;
+  var blockPictures = document.querySelector('.pictures');
+
   var pageMain = document.querySelector('main');
   var form = document.querySelector('.img-upload__form');
   var uploadFile = document.querySelector('#upload-file');
   var uploadForm = document.querySelector('.img-upload__overlay');
   var buttonUploadFormClose = document.querySelector('.img-upload__cancel');
+  var imgSizeScale = form.querySelector('.img-upload__scale');
+  var scaleControlValue = imgSizeScale.querySelector('.scale__control--value');
+  var STEP_CONTROL = 25;
+  var scaleValuePercent;
+
   var effectsList = document.querySelector('.effects__list');
   effectsList.style.userSelect = 'none';
   var currentEffect = document.querySelector('.img-upload__preview img');
   currentEffect.style.userSelect = 'none';
   var textHashtag = document.querySelector('.text__hashtags');
   var textDescription = document.querySelector('.text__description');
-  var successMessage = document.querySelector('#success').content.querySelector('.success');
-  var errorMessage = document.querySelector('#error').content.querySelector('.error');
 
   var effect = document.querySelector('.effect-level');
   var effectNone = document.querySelector('#effect-none');
   var effectHandle = effect.querySelector('.effect-level__pin');
   var effectLineDepth = effect.querySelector('.effect-level__depth');
 
+  var successMessage = document.querySelector('#success').content.querySelector('.success');
+  var errorMessage = document.querySelector('#error').content.querySelector('.error');
+  var message;
+  var closeMessageButton;
+
+  // При клике по кнопке устанавливает размер изображения.
+  imgSizeScale.addEventListener('click', setScaleSizeValue);
+
+  // Расчитывает значение поля - 'размер изображения'.
+  // @param {object} evt - Объект события, отлавливаемого на кнопках '-/+'.
+  function setScaleSizeValue(evt) {
+    // Переводит значение поля 'размер изображения' из процентов в десятичное число.
+    var scaleValueInt = parseInt(scaleControlValue.value, 10);
+
+    // Если событие происходит на кнопке '-', уменьшает значение поля 'размер изображения' на величину 'STEP_CONTROL'.
+    if (evt.target.classList[1] === 'scale__control--smaller') {
+      scaleValuePercent = (scaleValueInt - STEP_CONTROL) + '%';
+      // Минимальное значение поля 'размер изображения' равно 25%.
+      if (parseInt(scaleValuePercent, 10) < 25) {
+        scaleValuePercent = '25%';
+      }
+    // Если событие происходит на кнопке '+', увеличивает значение поля 'размер изображения' на величину 'STEP_CONTROL'.
+    } else if (evt.target.classList[1] === 'scale__control--bigger') {
+      scaleValuePercent = (scaleValueInt + STEP_CONTROL) + '%';
+      // Максимальное значение поля 'размер изображения' равно 100%.
+      if (parseInt(scaleValuePercent, 10) > 100) {
+        scaleValuePercent = '100%';
+      }
+    } else {
+      scaleValuePercent = '55%';
+    }
+
+    // Записывает новое значение в поле 'размер изображения'.
+    scaleControlValue.value = scaleValuePercent;
+
+    // Устанавливает для изображения стиль 'transform' на основе рассчитанного значения.
+    currentEffect.style.transform = 'scale(' + (parseInt(scaleValuePercent, 10) / 100) + ')';
+  }
+
   // Отправляет данные формы.
   form.addEventListener('submit', function (evt) {
     // Сбрасывает стандартное поведение формы.
     evt.preventDefault();
 
-    // Отправляет данные, обрабатывает ответ.
     window.backend.upload(new FormData(form), successUploadForm, errorUploadForm);
   });
 
   // Функция сообщает о неуспешной попытке загрузки данных.
-  function errorUploadForm() {
+  function errorUploadForm(xhr) {
     // Скрывает форму.
     uploadForm.classList.add('hidden');
 
-    // Открывает сообщение о неудачной попытке загрузки данных.
+    // Показывает сообщение о неудачной попытке загрузки данных.
     renderMessage(false);
+
+    // Обрабатывает тип ошибки.
+    handleError(xhr);
   }
 
-  // Функция сообщает о успешной попытке загрузки данных.
+  function handleError(xhr) {
+    var errorTitle;
+
+    // Обрабатывает текст сообщения, если загружаемый файл не изображение.
+    if (xhr.response[0].errorMessage === 'should be an image') {
+      errorTitle = message.querySelector('.error__title');
+      errorTitle.textContent = 'Загружаемый файл должен быть в формате изображения';
+      errorTitle.style.lineHeight = '32px';
+    }
+
+    // Обрабатывает текст сообщения, если текст хеш-тега не проходит валидацию.
+    if (xhr.response[0].errorMessage === 'hashtags should start with \'#\' and splitted by \' \'') {
+      errorTitle = message.querySelector('.error__title');
+      errorTitle.textContent = 'Хеш-тег должен начинаться с \'#\'';
+      errorTitle.style.lineHeight = '32px';
+    }
+  }
+
+  // Функция сообщает об успешной попытке загрузки данных.
   function successUploadForm() {
     // Скрывает форму.
     uploadForm.classList.add('hidden');
 
-    // Сбрасывает значения формы на дефолтные.
+    // Сбрасывает все значения формы.
+    setCustomValue();
+
+    // Показывает сообщение об удачной попытке загрузки данных.
+    renderMessage(true);
+  }
+
+  // Сбрасывает все значения формы на начальные.
+  function setCustomValue() {
     textHashtag.value = '';
     textDescription.value = '';
     currentEffect.className = '';
     currentEffect.style.filter = '';
-
-    // Открывает сообщение о удачной попытке загрузки данных.
-    renderMessage(true);
+    currentEffect.className = 'effects__preview--none';
+    scaleControlValue.value = '100%';
+    currentEffect.style.transform = 'scale(1)';
+    effectNone.checked = true;
+    effect.classList.add('visually-hidden');
   }
 
-  // Создаёт сообщение о загрузке данных из формы.
+  // Создаёт сообщение о загрузке данных из формы, добавляет обработчики закрытия сообщения.
   // @param {object} isSuccess - Статус сообщения: отправлено или нет.
   function renderMessage(isSuccess) {
-    var message;
-
-    // Клонирует шаблон в зависимости от статуса.
+    // Создаёт сообщение на основе шаблона в зависимости от статуса 'успешно/неуспешно'.
     if (isSuccess) {
       message = successMessage.cloneNode(true);
-    } else {
+      closeMessageButton = message.querySelector('.success__button');
+    } else if (!isSuccess) {
       message = errorMessage.cloneNode(true);
+      closeMessageButton = message.querySelector('.error__buttons');
     }
 
     // Добавляет сообщение в тег 'main'.
     pageMain.appendChild(message);
 
-    // TODO: пока не работает.
-    // Обработчик закрывает сообщение об отправке.
-    // document.addEventListener('keydown', escCloseMessage);
+    // Обработчик закрывает сообщение об отправке данных по ESC.
+    document.addEventListener('keydown', onEscCloseMessage);
+
+    // Обработчик закрывает сообщение об отправке данных при клике по произвольной области.
+    document.addEventListener('click', onEdgeClickCloseMessage);
+
+    // Обработчик закрывает сообщение об отправке данных при клике по кнопке.
+    closeMessageButton.addEventListener('click', onClickCloseMessage);
   }
 
-  // TODO: пока не работает.
-  // Закрывает сообщение об отправке по ESC.
-  // function escCloseMessage(evt) {
-  //   if (evt.keyCode === ESC_CODE) {
-  //     document.querySelector('.success').classList.add('visually-hidden');
-  //   }
-  // }
+  // Закрывает сообщение об отправке данных по ESC.
+  function onEscCloseMessage(evt) {
+    if (evt.keyCode === ESC_CODE) {
+      pageMain.removeChild(message);
+      // TODO: сомнительно
+      document.removeEventListener('keydown', onEscCloseMessage);
+      closeMessageButton.removeEventListener('click', onClickCloseMessage);
+    }
+  }
+
+  // Закрывает сообщение об отправке данных при клике по произвольной области.
+  function onEdgeClickCloseMessage(evt) {
+    if (evt.target.className === message.className) {
+      pageMain.removeChild(message);
+      document.removeEventListener('click', onEdgeClickCloseMessage);
+      document.removeEventListener('keydown', onEscCloseMessage);
+
+      // TODO: сомнительно
+      blockPictures.addEventListener('click', window.preview.openBigPicture);
+    }
+  }
+
+  // Закрывает сообщение об отправке данных по клику.
+  function onClickCloseMessage() {
+    pageMain.removeChild(message);
+    // TODO: сомнительно
+    document.removeEventListener('keydown', onEscCloseMessage);
+    closeMessageButton.removeEventListener('click', onClickCloseMessage);
+  }
 
   // Закрывает форму загрузки изображения по ESC.
   function escCloseUploadForm(evt) {
     if (evt.keyCode === ESC_CODE) {
       uploadForm.classList.add('hidden');
+      setCustomValue();
+
+      // TODO: сомнительно
+      blockPictures.addEventListener('click', window.preview.openBigPicture);
     }
   }
 
   // Открывает форму загрузки изображения.
   function openUploadForm() {
+    blockPictures.removeEventListener('click', window.preview.openBigPicture);
     uploadForm.classList.remove('hidden');
+    setCustomValue();
 
     document.addEventListener('keydown', escCloseUploadForm);
+    document.addEventListener('click', onEdgeClickCloseForm);
+  }
+
+  // Закрывает форму загрузки изображения при клике на произвольную область.
+  function onEdgeClickCloseForm(evt) {
+    if (evt.target.className === 'img-upload__overlay') {
+      uploadForm.classList.add('hidden');
+      document.addEventListener('keydown', escCloseUploadForm);
+      document.removeEventListener('click', onEdgeClickCloseForm);
+
+      // TODO: сомнительно
+      blockPictures.addEventListener('click', window.preview.openBigPicture);
+    }
   }
 
   // Закрывает форму загрузки изображения.
   function closeUploadForm() {
     uploadForm.classList.add('hidden');
+    setCustomValue();
+
+    // TODO: сомнительно
+    blockPictures.addEventListener('click', window.preview.openBigPicture);
+    document.addEventListener('keydown', escCloseUploadForm);
+    document.removeEventListener('click', onEdgeClickCloseForm);
   }
 
   // Открывает форму загрузки изображения при наступлении события 'change'.
@@ -109,7 +235,7 @@
     uploadFile.value = '';
   });
 
-  // Закрывает форму загрузки фотографии.
+  // Закрывает форму загрузки изображения.
   buttonUploadFormClose.addEventListener('click', closeUploadForm);
 
   // Обрабатывает переключение фильтра.
@@ -120,6 +246,11 @@
       currentEffect.className = '';
       var nextElem = target.nextElementSibling.children[0];
       currentEffect.classList.add(nextElem.classList[1]);
+
+      // Если выбирается любой ненулевой фильтр, то слайдер показывается.
+      if (currentEffect.className !== 'effects__preview--none') {
+        effect.classList.remove('visually-hidden');
+      }
 
       // При переключении фильтра, сбрасывает положение слайдера на 100%.
       effectHandle.style.left = '100%';
@@ -177,30 +308,49 @@
   }
 
   // Проверяет значение поля 'input', на соответствие заданным условиям.
-  // @param {object} evt - ???????????????
+  // @param {object} evt - Объект события изменения содержимого поля 'input'.
   function checkInput(evt) {
     var target = evt.target;
-    var stringHashtags = evt.target.value;
+    // Берёт содержимое поля 'input'.
+    var stringHashtags = target.value;
+    // Разбивает содержимое на строки, и создаёт массив из них.
     var arrayHashtags = stringHashtags.split(' ');
 
-    for (var i = 0; i < arrayHashtags.length; i++) {
-      var hashtag = arrayHashtags[i];
+    validateArray(arrayHashtags, target);
+  }
+
+  // Проверяет массив строк на валидность.
+  function validateArray(exampleArray, target) {
+
+    var answer;
+
+    exampleArray.forEach(function (hashtag) {
       var hashtagSymbols = hashtag.split('');
 
-      if ((hashtag.length > 0) && (hashtagSymbols[0] !== '#')) {
-        target.setCustomValidity('Хеш-тег начинается с #');
-      } else if (hashtagSymbols.length > 20) {
-        target.setCustomValidity('Длина одного хеш-тега должна быть не более 20 символов');
-      } else if (hashtagSymbols.length > 0 && hashtagSymbols.length < 2) {
-        target.setCustomValidity('Длина одного хеш-тега должна быть не менее 2 символов');
-      } else if (arrayHashtags.length > 5) {
-        target.setCustomValidity('Не более 5 хеш-тегов');
-      } else if (sortArray(arrayHashtags)) {
-        target.setCustomValidity('Одинаковых хеш-тегов не должно быть');
-      } else {
-        target.setCustomValidity('');
+      if (!answer) {
+        switch (hashtag !== '') {
+          case ((hashtag.length > 1) && (hashtagSymbols[0] !== '#')):
+            answer = 'Хеш-тег начинается с #';
+            break;
+          case (hashtagSymbols.length > 20):
+            answer = 'Длина одного хеш-тега должна быть не более 20 символов';
+            break;
+          case (hashtagSymbols.length > 0 && hashtagSymbols.length < 2):
+            answer = 'Длина одного хеш-тега должна быть не менее 2 символов';
+            break;
+          case (exampleArray.length > 5):
+            answer = 'Не более 5 хеш-тегов';
+            break;
+          case sortArray(exampleArray):
+            answer = 'Одинаковых хеш-тегов не должно быть';
+            break;
+
+          default: answer = '';
+        }
       }
-    }
+    });
+
+    target.setCustomValidity(answer);
   }
 
   // Проверяет поле с хеш-тегами на валидность.
