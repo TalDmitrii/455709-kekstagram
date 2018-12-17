@@ -6,7 +6,6 @@
 
   var pageMain = document.querySelector('main');
   var form = document.querySelector('.img-upload__form');
-  console.dir(form);
   var uploadFile = document.querySelector('#upload-file');
   var uploadForm = document.querySelector('.img-upload__overlay');
   var buttonUploadFormClose = document.querySelector('.img-upload__cancel');
@@ -34,10 +33,10 @@
 
   // При клике по кнопке устанавливает размер изображения.
   imgSizeScale.addEventListener('click', setScaleSizeValue);
-  
+
   // Расчитывает значение поля - 'размер изображения'.
   // @param {object} evt - Объект события, отлавливаемого на кнопках '-/+'.
-  function setScaleSizeValue (evt) {
+  function setScaleSizeValue(evt) {
     // Переводит значение поля 'размер изображения' из процентов в десятичное число.
     var scaleValueInt = parseInt(scaleControlValue.value, 10);
 
@@ -45,14 +44,14 @@
     if (evt.target.classList[1] === 'scale__control--smaller') {
       scaleValuePercent = (scaleValueInt - STEP_CONTROL) + '%';
       // Минимальное значение поля 'размер изображения' равно 25%.
-      if(parseInt(scaleValuePercent, 10) < 25) {
+      if (parseInt(scaleValuePercent, 10) < 25) {
         scaleValuePercent = '25%';
       }
-    // Если событие происходит на кнопке '+', увеличивает значение поля 'размер изображения' на величину 'STEP_CONTROL'.  
+    // Если событие происходит на кнопке '+', увеличивает значение поля 'размер изображения' на величину 'STEP_CONTROL'.
     } else if (evt.target.classList[1] === 'scale__control--bigger') {
       scaleValuePercent = (scaleValueInt + STEP_CONTROL) + '%';
       // Максимальное значение поля 'размер изображения' равно 100%.
-      if(parseInt(scaleValuePercent, 10) > 100) {
+      if (parseInt(scaleValuePercent, 10) > 100) {
         scaleValuePercent = '100%';
       }
     } else {
@@ -85,18 +84,20 @@
     // Обрабатывает тип ошибки.
     handleError(xhr);
   }
-  
+
   function handleError(xhr) {
+    var errorTitle;
+
     // Обрабатывает текст сообщения, если загружаемый файл не изображение.
     if (xhr.response[0].errorMessage === 'should be an image') {
-      var errorTitle = message.querySelector('.error__title');
+      errorTitle = message.querySelector('.error__title');
       errorTitle.textContent = 'Загружаемый файл должен быть в формате изображения';
       errorTitle.style.lineHeight = '32px';
     }
 
     // Обрабатывает текст сообщения, если текст хеш-тега не проходит валидацию.
     if (xhr.response[0].errorMessage === 'hashtags should start with \'#\' and splitted by \' \'') {
-      var errorTitle = message.querySelector('.error__title');
+      errorTitle = message.querySelector('.error__title');
       errorTitle.textContent = 'Хеш-тег должен начинаться с \'#\'';
       errorTitle.style.lineHeight = '32px';
     }
@@ -115,7 +116,7 @@
   }
 
   // Сбрасывает все значения формы на начальные.
-  function setCustomValue () {
+  function setCustomValue() {
     textHashtag.value = '';
     textDescription.value = '';
     currentEffect.className = '';
@@ -314,12 +315,12 @@
     var stringHashtags = target.value;
     // Разбивает содержимое на строки, и создаёт массив из них.
     var arrayHashtags = stringHashtags.split(' ');
-    
+
     validateArray(arrayHashtags, target);
   }
 
   // Проверяет массив строк на валидность.
-  function validateArray (exampleArray, target) {
+  function validateArray(exampleArray, target) {
     var isValidity = false;
 
     // TODO:
@@ -334,7 +335,6 @@
     for (var i = 0; i < exampleArray.length; i++) {
       var hashtag = exampleArray[i];
       var hashtagSymbols = hashtag.split('');
-      console.dir(exampleArray);
 
       if ((hashtag.length > 0) && (hashtagSymbols[0] !== '#')) {
         target.setCustomValidity('Хеш-тег начинается с #');

@@ -11,7 +11,6 @@
   var commentsList = document.querySelector('.social__comments');
   var closeButton = bigPicture.querySelector('.big-picture__cancel');
   var bigPictureImage = bigPicture.querySelector('.big-picture__img img');
-  var imgFilters = document.querySelector('.img-filters');
 
   window.backend.load(renderComment);
 
@@ -56,8 +55,6 @@
         comment.classList.add('visually-hidden');
       }
     }
-
-    
   }
 
   // Создаёт описание для большой фотографии, и другую информацию для неё.
@@ -104,5 +101,5 @@
 
   window.preview = {
     openBigPicture: openBigPicture
-  }
+  };
 })();
