@@ -20,25 +20,23 @@
       // то у предыдущей цели убирает класс 'active', и добавляет его текущей цели.
       // Удаляет ранее отрисованные изображения
       if (target.classList[1] === undefined) {
-          currentFilter.classList.remove('img-filters__button--active');
-          target.classList.add('img-filters__button--active');
-          deleteElems(pictures);
+        currentFilter.classList.remove('img-filters__button--active');
+        target.classList.add('img-filters__button--active');
+        deleteElems(pictures);
 
-          // Обрабатывает отрисовку изображений в зависимости от 'id' элемента,
-          // на котором произошел 'клик'.
-          switch (target.id) {
-            case ('filter-popular'):
-              renderPicturesList(arrayPicture);
-              break;
-            case ('filter-new'):
-              renderPicturesList(filterNew(arrayPicture));
-              break;
-            case ('filter-discussed'):
-              renderPicturesList(filterCountComments(arrayPicture));
-              break;
-
-            default: alert();
-          }
+        // Обрабатывает отрисовку изображений в зависимости от 'id' элемента,
+        // на котором произошел 'клик'.
+        switch (target.id) {
+          case ('filter-popular'):
+            renderPicturesList(arrayPicture);
+            break;
+          case ('filter-new'):
+            renderPicturesList(filterNew(arrayPicture));
+            break;
+          case ('filter-discussed'):
+            renderPicturesList(filterCountComments(arrayPicture));
+            break;
+        }
       }
     });
   }
@@ -46,9 +44,9 @@
   // Удаляет элементы из родительского блока.
   // @param {array} elem - Массив элементов.
   function deleteElems(arrayElem) {
-    arrayElem.forEach(function(elem){
+    arrayElem.forEach(function (elem) {
       elem.parentNode.removeChild(elem);
-    });  
+    });
   }
 
   // Фильтрует исходный массив так, чтобы в исходном массиве были только уникальные елементы.
@@ -64,23 +62,23 @@
 
       // Если новый массив с отфильтрованными фотографиями пустой, добавляет ему первый элемент.
       if (filterNewArray.length === 0) {
-        filterNewArray[0] = newRandomPicture;  
+        filterNewArray[0] = newRandomPicture;
       } else {
-          // Если новый массив с отфильтрованными фотографиями не пустой, проверяет есть ли в нём элемент,
-          // идентичный вновь сгенерированному случайному элементу.
-          filterNewArray.forEach(function(item) {
-            // Если массив содержит элемент, идентичный вновь сгенерированному случайному элементу,
-            // то возвращает 'true'.
-            if (item.url === newRandomPicture.url) {
-              iSsimilarPicture = true;
-            }
-          });
-
-          // Если идентичных элементов нет, добавляет сгенерированный случайный элемент в массив
-          // с отфильтрованными фотографиями.
-          if(!iSsimilarPicture) {
-            filterNewArray.push(newRandomPicture);
+        // Если новый массив с отфильтрованными фотографиями не пустой, проверяет есть ли в нём элемент,
+        // идентичный вновь сгенерированному случайному элементу.
+        filterNewArray.forEach(function (item) {
+          // Если массив содержит элемент, идентичный вновь сгенерированному случайному элементу,
+          // то возвращает 'true'.
+          if (item.url === newRandomPicture.url) {
+            iSsimilarPicture = true;
           }
+        });
+
+        // Если идентичных элементов нет, добавляет сгенерированный случайный элемент в массив
+        // с отфильтрованными фотографиями.
+        if (!iSsimilarPicture) {
+          filterNewArray.push(newRandomPicture);
+        }
       }
     }
 
@@ -94,7 +92,7 @@
     // Копируем исходный массив.
     var arrayPictureCopy = arrayPicture.slice();
 
-    arrayPictureCopy.sort(function(a, b) {
+    arrayPictureCopy.sort(function (a, b) {
       return b.comments.length - a.comments.length;
     });
 
