@@ -29,6 +29,7 @@
     var URL = 'https://js.dump.academy/kekstagram/data';
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
+    xhr.timeout = 10000;
 
     xhr.open('GET', URL);
 
@@ -47,8 +48,6 @@
     xhr.addEventListener('timeout', function () {
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
-
-    xhr.timeout = 10000;
 
     xhr.send();
   }
