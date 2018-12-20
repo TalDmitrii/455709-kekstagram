@@ -113,11 +113,34 @@
   // @param {object} picture - На основе свойств этого объекта создаётся изображение.
   // @returns {pictureElement} - Создаёт изображение на основе шаблона.
   function renderPicture(picture) {
+    // Клонирует шаблон.
     var pictureElement = similarPictureTemplate.cloneNode(true);
 
+    // Создаёт два дополнительных элемента, для комментариев и описания изображения.
+    var pictureElementDescription = document.createElement('span');
+    var pictureCommentsWrapper = document.createElement('div');
+    var pictureElementComments = document.createElement('ul');
+
+    // Скрывает дополнительные элементы.
+    pictureElementDescription.classList.add('visually-hidden');
+    pictureCommentsWrapper.classList.add('visually-hidden');
+    pictureElementComments.classList.add('social__comments');
+
+    // Присваивает значения элементам.
     pictureElement.querySelector('.picture__img').src = picture.url;
     pictureElement.querySelector('.picture__likes').textContent = picture.likes;
     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length;
+    pictureElementDescription.textContent = picture.description;
+
+    // Записывает комментарии в блок для комментариев.
+    for (var i = 0; i < picture.comments.length; i++) {
+      window.preview.renderComment(picture.comments[i], pictureElementComments);
+    }
+
+    // Добавляет дополнительные блоки в элемент.
+    pictureCommentsWrapper.appendChild(pictureElementComments);
+    pictureElement.appendChild(pictureElementDescription);
+    pictureElement.appendChild(pictureCommentsWrapper);
 
     return pictureElement;
   }
@@ -135,4 +158,8 @@
 
     filterImg(arrayPicture);
   }
+
+  window.picture = {
+    deleteElems: deleteElems
+  };
 })();
