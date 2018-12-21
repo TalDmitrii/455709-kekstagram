@@ -12,13 +12,12 @@
   var blockComments = bigPictureSocial.querySelector('.social__comments');
   var closeButton = bigPicture.querySelector('.big-picture__cancel');
   var bigPictureImage = bigPicture.querySelector('.big-picture__img img');
-  var pictureElems = blockComments.querySelectorAll('li');
 
   // Создаёт комментарий к увеличенному изображению.
   // Комментарий является элементом списка, теги 'img' и 'p' будут в нём содержаться.
   // @param {object} someObject - На основе свойства 'comment' этого объекта создаются комментарии.
   // @param {object} listToThisComment - В этот список добавляются комментарии.
-  function renderComment(elem, blockToComments) {
+  function renderComment(objectPost) {
     var comment = document.createElement('li');
     var avatarUser = document.createElement('img');
     var textComment = document.createElement('p');
@@ -26,15 +25,17 @@
     // Определяет свойства объекта(комментария), добавляет классы тегам.
     comment.classList.add('social__comment');
     avatarUser.classList.add('social__picture');
-    avatarUser.src = elem.avatar;
+    avatarUser.src = objectPost.avatar;
     avatarUser.alt = 'Аватар комментатора фотографии';
     avatarUser.width = 35;
     avatarUser.height = 35;
     textComment.classList.add('social__text');
-    textComment.textContent = elem.message;
+    textComment.textContent = objectPost.message;
     comment.appendChild(avatarUser);
     comment.appendChild(textComment);
-    blockToComments.appendChild(comment);
+    // blockToComments.appendChild(comment);
+
+    return comment;
   }
 
   // Создаёт описание для большой фотографии, и другую информацию для неё.
@@ -54,9 +55,21 @@
   function openBigPicture(evt) {
     var target = evt.target;
     var parentTarget = evt.target.parentNode;
-    var currentComment = parentTarget.children[3].children[0].cloneNode(true);
+    // // Находит комментарии в виде коллекции, у родителя элемента на котором произошло событие.
+    // var currentCommentsCollection = parentTarget.children[3].children[0].children;
+    // // Приводит коллекцию комментариев к массиву комментариев.
+    // var currentCommentsArray = Array.prototype.slice.call(currentCommentsCollection);
+    var pictureElems = blockComments.querySelectorAll('li');
+
+    // console.dir(currentCommentsCollection);
+    // console.dir(currentCommentsCollection[0].children[1].textContent);
+    // console.dir(currentCommentsArray);
 
     if (target.tagName === 'IMG') {
+      var posts = window.state.posts;
+      var imgId = evt.target.parentNode.dataset.id;
+      var imgComments = posts[imgId].comments;
+
       // Присваивает новый адрес для увеличенного изображения.
       bigPictureImage.src = evt.target.attributes.src.nodeValue;
 
@@ -66,8 +79,15 @@
       // Удаляет старые комментарии.
       window.picture.deleteElems(pictureElems);
 
+      var fragment = document.createDocumentFragment();
+
       // Отображает новые комментарии для увеличенного изображения.
-      blockComments.appendChild(currentComment);
+      imgComments.forEach(function (comment) {
+        var commentNode = renderComment(comment);
+        fragment.appendChild(commentNode);
+      });
+
+      blockComments.appendChild(fragment);
 
       bigPicture.classList.remove('hidden');
     }

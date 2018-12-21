@@ -11,6 +11,8 @@
   var buttonUploadFormClose = document.querySelector('.img-upload__cancel');
   var imgSizeScale = form.querySelector('.img-upload__scale');
   var scaleControlValue = imgSizeScale.querySelector('.scale__control--value');
+  var buttonSubmit = form.querySelector('.img-upload__submit');
+  var inputHashtag = form.querySelector('.text__hashtags');
   var STEP_CONTROL = 25;
   var scaleValuePercent;
 
@@ -69,6 +71,7 @@
   form.addEventListener('submit', function (evt) {
     // Сбрасывает стандартное поведение формы.
     evt.preventDefault();
+    inputHashtag.style.border = '';
 
     window.backend.upload(new FormData(form), successUploadForm, errorUploadForm);
   });
@@ -321,7 +324,6 @@
 
   // Проверяет массив строк на валидность.
   function validateArray(exampleArray, target) {
-
     var answer;
 
     exampleArray.forEach(function (hashtag) {
@@ -345,7 +347,7 @@
             answer = 'Одинаковых хеш-тегов не должно быть';
             break;
 
-          default: answer = '';
+          default: answer = ''; inputHashtag.style.border = '';
         }
       }
     });
@@ -355,6 +357,10 @@
 
   // Проверяет поле с хеш-тегами на валидность.
   textHashtag.addEventListener('input', checkInput);
+
+  buttonSubmit.addEventListener('click', function () {
+    inputHashtag.style.border = '2px solid red';
+  });
 
   // При фокусе на элементе 'textHashtag' удаляет обработчик закрытия формы по ESC.
   textHashtag.addEventListener('focus', function () {

@@ -112,9 +112,10 @@
   // Создаёт изображение.
   // @param {object} picture - На основе свойств этого объекта создаётся изображение.
   // @returns {pictureElement} - Создаёт изображение на основе шаблона.
-  function renderPicture(picture) {
+  function renderPicture(picture, i) {
     // Клонирует шаблон.
     var pictureElement = similarPictureTemplate.cloneNode(true);
+    pictureElement.dataset.id = i;
 
     // Создаёт два дополнительных элемента, для комментариев и описания изображения.
     var pictureElementDescription = document.createElement('span');
@@ -133,9 +134,9 @@
     pictureElementDescription.textContent = picture.description;
 
     // Записывает комментарии в блок для комментариев.
-    for (var i = 0; i < picture.comments.length; i++) {
-      window.preview.renderComment(picture.comments[i], pictureElementComments);
-    }
+    // for (var i = 0; i < picture.comments.length; i++) {
+    //   window.preview.renderComment(picture.comments[i], pictureElementComments);
+    // }
 
     // Добавляет дополнительные блоки в элемент.
     pictureCommentsWrapper.appendChild(pictureElementComments);
@@ -151,7 +152,7 @@
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < arrayPicture.length; i++) {
-      fragment.appendChild(renderPicture(arrayPicture[i]));
+      fragment.appendChild(renderPicture(arrayPicture[i], i));
     }
 
     blockPictures.appendChild(fragment);

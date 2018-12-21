@@ -35,6 +35,10 @@
 
     xhr.addEventListener('load', function () {
       if (xhr.status === 200) {
+        window.state = {
+          posts: xhr.response
+        };
+
         onLoad(xhr.response);
       } else {
         onError(xhr.status);
