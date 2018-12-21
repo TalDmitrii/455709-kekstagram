@@ -5,6 +5,8 @@
   var similarPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   var imgFilter = document.querySelector('.img-filters');
 
+  window.backend.load(renderPicturesList);
+
   // Показывает блок фильтрации фотографий.
   // Обрабатывает переключение фильтра.
   function filterImg(arrayPicture) {
@@ -107,8 +109,6 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  window.backend.load(renderPicturesList);
-
   // Создаёт изображение.
   // @param {object} picture - На основе свойств этого объекта создаётся изображение.
   // @returns {pictureElement} - Создаёт изображение на основе шаблона.
@@ -132,11 +132,6 @@
     pictureElement.querySelector('.picture__likes').textContent = picture.likes;
     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length;
     pictureElementDescription.textContent = picture.description;
-
-    // Записывает комментарии в блок для комментариев.
-    // for (var i = 0; i < picture.comments.length; i++) {
-    //   window.preview.renderComment(picture.comments[i], pictureElementComments);
-    // }
 
     // Добавляет дополнительные блоки в элемент.
     pictureCommentsWrapper.appendChild(pictureElementComments);

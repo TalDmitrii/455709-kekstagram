@@ -33,7 +33,6 @@
     textComment.textContent = objectPost.message;
     comment.appendChild(avatarUser);
     comment.appendChild(textComment);
-    // blockToComments.appendChild(comment);
 
     return comment;
   }
@@ -55,15 +54,7 @@
   function openBigPicture(evt) {
     var target = evt.target;
     var parentTarget = evt.target.parentNode;
-    // // Находит комментарии в виде коллекции, у родителя элемента на котором произошло событие.
-    // var currentCommentsCollection = parentTarget.children[3].children[0].children;
-    // // Приводит коллекцию комментариев к массиву комментариев.
-    // var currentCommentsArray = Array.prototype.slice.call(currentCommentsCollection);
     var pictureElems = blockComments.querySelectorAll('li');
-
-    // console.dir(currentCommentsCollection);
-    // console.dir(currentCommentsCollection[0].children[1].textContent);
-    // console.dir(currentCommentsArray);
 
     if (target.tagName === 'IMG') {
       var posts = window.state.posts;

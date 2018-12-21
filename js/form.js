@@ -160,7 +160,6 @@
   function onEscCloseMessage(evt) {
     if (evt.keyCode === ESC_CODE) {
       pageMain.removeChild(message);
-      // TODO: сомнительно
       document.removeEventListener('keydown', onEscCloseMessage);
       closeMessageButton.removeEventListener('click', onClickCloseMessage);
     }
@@ -172,8 +171,6 @@
       pageMain.removeChild(message);
       document.removeEventListener('click', onEdgeClickCloseMessage);
       document.removeEventListener('keydown', onEscCloseMessage);
-
-      // TODO: сомнительно
       blockPictures.addEventListener('click', window.preview.openBigPicture);
     }
   }
@@ -181,7 +178,6 @@
   // Закрывает сообщение об отправке данных по клику.
   function onClickCloseMessage() {
     pageMain.removeChild(message);
-    // TODO: сомнительно
     document.removeEventListener('keydown', onEscCloseMessage);
     closeMessageButton.removeEventListener('click', onClickCloseMessage);
   }
@@ -192,7 +188,6 @@
       uploadForm.classList.add('hidden');
       setCustomValue();
 
-      // TODO: сомнительно
       blockPictures.addEventListener('click', window.preview.openBigPicture);
     }
   }
@@ -213,8 +208,6 @@
       uploadForm.classList.add('hidden');
       document.addEventListener('keydown', escCloseUploadForm);
       document.removeEventListener('click', onEdgeClickCloseForm);
-
-      // TODO: сомнительно
       blockPictures.addEventListener('click', window.preview.openBigPicture);
     }
   }
@@ -224,7 +217,6 @@
     uploadForm.classList.add('hidden');
     setCustomValue();
 
-    // TODO: сомнительно
     blockPictures.addEventListener('click', window.preview.openBigPicture);
     document.addEventListener('keydown', escCloseUploadForm);
     document.removeEventListener('click', onEdgeClickCloseForm);
