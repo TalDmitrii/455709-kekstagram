@@ -12,6 +12,7 @@
   var pageMain = document.querySelector('main');
   var form = document.querySelector('.img-upload__form');
   var uploadFile = document.querySelector('#upload-file');
+  var previewMini = form.querySelectorAll('.effects__preview');
   var uploadForm = document.querySelector('.img-upload__overlay');
   var buttonUploadFormClose = document.querySelector('.img-upload__cancel');
   var imgSizeScale = form.querySelector('.img-upload__scale');
@@ -37,6 +38,45 @@
   var errorMessage = document.querySelector('#error').content.querySelector('.error');
   var message;
   var closeMessageButton;
+
+  var imageElement = document.querySelector('.img-upload__preview img');
+
+  uploadFile.addEventListener('change', function (evt) {
+    // останавливаем действие по умолчанию
+    evt.preventDefault();
+    // останавливаем всплытие события
+    evt.stopPropagation();
+
+    // если файлы не равны undefined и их количество больше нуля
+    if (uploadFile.files && uploadFile.files.length !== 0) {
+      // берем первый файл
+      var file = uploadFile.files[0];
+      // создаем ридер
+      var reader = new FileReader();
+      var reader2 = new FileReader();
+
+      // как только ридер загрузит бинарные данные - добавляем данные -
+      // - в src картинки
+      reader.onloadend = function () {
+        imageElement.src = reader.result;
+      };
+
+      reader2.onloadend = function () {
+        previewMini.forEach(function (elem) {
+          elem.style.backgroundImage = 'url(' + reader.result + ')';
+        });
+      };
+
+      // если файл есть
+      if (file) {
+        // читаем данные из файла
+        reader.readAsDataURL(file);
+        reader2.readAsDataURL(file);
+      } else {
+        imageElement.src = '';
+      }
+    }
+  });
 
   // При клике по кнопке устанавливает размер изображения.
   imgSizeScale.addEventListener('click', onScaleSizeValueClick);
