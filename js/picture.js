@@ -117,15 +117,11 @@
     var pictureElement = similarPictureTemplate.cloneNode(true);
     pictureElement.dataset.id = i;
 
-    // Создаёт два дополнительных элемента, для комментариев и описания изображения.
+    // Создаёт дополнительный элемент, для описания изображения.
     var pictureElementDescription = document.createElement('span');
-    var pictureCommentsWrapper = document.createElement('div');
-    var pictureElementComments = document.createElement('ul');
 
-    // Скрывает дополнительные элементы.
+    // Скрывает дополнительный элемент.
     pictureElementDescription.classList.add('visually-hidden');
-    pictureCommentsWrapper.classList.add('visually-hidden');
-    pictureElementComments.classList.add('social__comments');
 
     // Присваивает значения элементам.
     pictureElement.querySelector('.picture__img').src = picture.url;
@@ -133,10 +129,8 @@
     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length;
     pictureElementDescription.textContent = picture.description;
 
-    // Добавляет дополнительные блоки в элемент.
-    pictureCommentsWrapper.appendChild(pictureElementComments);
+    // Добавляет дополнительный блок в элемент.
     pictureElement.appendChild(pictureElementDescription);
-    pictureElement.appendChild(pictureCommentsWrapper);
 
     return pictureElement;
   }

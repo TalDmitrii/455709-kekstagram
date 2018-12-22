@@ -51,7 +51,7 @@
   }
 
   // Открывает полноразмерное изображение.
-  function openBigPicture(evt) {
+  function onImageClick(evt) {
     var target = evt.target;
     var parentTarget = evt.target.parentNode;
     var pictureElems = blockComments.querySelectorAll('li');
@@ -73,37 +73,75 @@
       var fragment = document.createDocumentFragment();
 
       // Отображает новые комментарии для увеличенного изображения.
-      imgComments.forEach(function (comment) {
+      imgComments.forEach(function (comment, index) {
+        var defaultCountComments = 5;
         var commentNode = renderComment(comment);
+
         fragment.appendChild(commentNode);
+
+        if (index > defaultCountComments - 1) {
+          commentNode.classList.add('visually-hidden');
+        }
       });
 
       blockComments.appendChild(fragment);
+
+      renderPartComments();
 
       bigPicture.classList.remove('hidden');
     }
   }
 
+  function renderPartComments() {
+    // Находит скрытые комментарии.
+    var test = blockComments.querySelectorAll('li.visually-hidden');
+
+    // Если скрытые комментарии есть, то открывает кнопку 'Загрузить ещё', и вешает обработчик
+    // клика на эту кнопку.
+    if (test.length > 0) {
+      commentsLoader.classList.remove('visually-hidden');
+
+      // Добавляет обработчик, который при клике на кнопку 'Загрузить ещё', обрабатывает скрытые комментарии.
+      commentsLoader.addEventListener('click', function () {
+        // Проходит циклом по массиву скрытых комментариев.
+        for (var i = 0; i < 5; i++) {
+          // Если скрытый комментарий с таким индексом существует, то показывает его.
+          if (test[i]) {
+            test[i].classList.remove('visually-hidden');
+          } else {
+            // Если скрытых комментариев больше нет, то скрывает кнопку 'Загрузить ещё' и выходит из цикла.
+            commentsLoader.classList.add('visually-hidden');
+            return;
+          }
+        }
+
+        renderPartComments();
+      });
+    } else {
+      commentsLoader.classList.add('visually-hidden');
+    }
+  }
+
   // Добавляется обработчик, открывающий полноразмерное изображение.
-  blockPictures.addEventListener('click', openBigPicture);
+  blockPictures.addEventListener('click', onImageClick);
 
   // Закрывает полноразмерное изображение.
-  function closeFullSizePhoto() {
+  function onButtonCloseFullSizeClick() {
     bigPicture.classList.add('hidden');
   }
 
   // Закрывает полноразмерное изображение по клику.
-  closeButton.addEventListener('click', closeFullSizePhoto);
+  closeButton.addEventListener('click', onButtonCloseFullSizeClick);
 
   // Закрывает полноразмерное изображение по клавише ESC.
   window.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ESC_CODE) {
-      closeFullSizePhoto();
+      onButtonCloseFullSizeClick();
     }
   });
 
   window.preview = {
-    openBigPicture: openBigPicture,
+    onImageClick: onImageClick,
     renderComment: renderComment
   };
 })();

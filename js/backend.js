@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var SUCCESS_RESPONSE_STATUS = 200;
+
   // Отправляет данные на сервер.
   // @param {object} data - Содержит данные формы, которые будут отправлены на сервер.
   // @param {function} onLoad - Функция обратного вызова, которая срабатывает при успешном выполнении запроса.
@@ -11,7 +13,7 @@
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === SUCCESS_RESPONSE_STATUS) {
         onLoad(xhr.status);
       } else {
         onError(xhr);
@@ -34,7 +36,7 @@
     xhr.open('GET', URL);
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === SUCCESS_RESPONSE_STATUS) {
         window.state = {
           posts: xhr.response
         };

@@ -34,11 +34,13 @@
   var closeMessageButton;
 
   // При клике по кнопке устанавливает размер изображения.
-  imgSizeScale.addEventListener('click', setScaleSizeValue);
+  imgSizeScale.addEventListener('click', onScaleSizeValueClick);
 
   // Расчитывает значение поля - 'размер изображения'.
   // @param {object} evt - Объект события, отлавливаемого на кнопках '-/+'.
-  function setScaleSizeValue(evt) {
+  function onScaleSizeValueClick(evt) {
+    var minScaleValue = 25;
+    var maxScaleValue = 100;
     // Переводит значение поля 'размер изображения' из процентов в десятичное число.
     var scaleValueInt = parseInt(scaleControlValue.value, 10);
 
@@ -46,14 +48,14 @@
     if (evt.target.classList[1] === 'scale__control--smaller') {
       scaleValuePercent = (scaleValueInt - STEP_CONTROL) + '%';
       // Минимальное значение поля 'размер изображения' равно 25%.
-      if (parseInt(scaleValuePercent, 10) < 25) {
+      if (parseInt(scaleValuePercent, 10) < minScaleValue) {
         scaleValuePercent = '25%';
       }
     // Если событие происходит на кнопке '+', увеличивает значение поля 'размер изображения' на величину 'STEP_CONTROL'.
     } else if (evt.target.classList[1] === 'scale__control--bigger') {
       scaleValuePercent = (scaleValueInt + STEP_CONTROL) + '%';
       // Максимальное значение поля 'размер изображения' равно 100%.
-      if (parseInt(scaleValuePercent, 10) > 100) {
+      if (parseInt(scaleValuePercent, 10) > maxScaleValue) {
         scaleValuePercent = '100%';
       }
     } else {
@@ -147,83 +149,83 @@
     pageMain.appendChild(message);
 
     // Обработчик закрывает сообщение об отправке данных по ESC.
-    document.addEventListener('keydown', onEscCloseMessage);
+    document.addEventListener('keydown', onCloseMessageKeydown);
 
     // Обработчик закрывает сообщение об отправке данных при клике по произвольной области.
-    document.addEventListener('click', onEdgeClickCloseMessage);
+    document.addEventListener('click', onWindowClick);
 
     // Обработчик закрывает сообщение об отправке данных при клике по кнопке.
-    closeMessageButton.addEventListener('click', onClickCloseMessage);
+    closeMessageButton.addEventListener('click', onButtonCloseClick);
   }
 
   // Закрывает сообщение об отправке данных по ESC.
-  function onEscCloseMessage(evt) {
+  function onCloseMessageKeydown(evt) {
     if (evt.keyCode === ESC_CODE) {
       pageMain.removeChild(message);
-      document.removeEventListener('keydown', onEscCloseMessage);
-      closeMessageButton.removeEventListener('click', onClickCloseMessage);
+      document.removeEventListener('keydown', onCloseMessageKeydown);
+      closeMessageButton.removeEventListener('click', onButtonCloseClick);
     }
   }
 
   // Закрывает сообщение об отправке данных при клике по произвольной области.
-  function onEdgeClickCloseMessage(evt) {
+  function onWindowClick(evt) {
     if (evt.target.className === message.className) {
       pageMain.removeChild(message);
-      document.removeEventListener('click', onEdgeClickCloseMessage);
-      document.removeEventListener('keydown', onEscCloseMessage);
-      blockPictures.addEventListener('click', window.preview.openBigPicture);
+      document.removeEventListener('click', onWindowClick);
+      document.removeEventListener('keydown', onCloseMessageKeydown);
+      blockPictures.addEventListener('click', window.preview.onImageClick);
     }
   }
 
   // Закрывает сообщение об отправке данных по клику.
-  function onClickCloseMessage() {
+  function onButtonCloseClick() {
     pageMain.removeChild(message);
-    document.removeEventListener('keydown', onEscCloseMessage);
-    closeMessageButton.removeEventListener('click', onClickCloseMessage);
+    document.removeEventListener('keydown', onCloseMessageKeydown);
+    closeMessageButton.removeEventListener('click', onButtonCloseClick);
   }
 
   // Закрывает форму загрузки изображения по ESC.
-  function escCloseUploadForm(evt) {
+  function onEscKeydown(evt) {
     if (evt.keyCode === ESC_CODE) {
       uploadForm.classList.add('hidden');
       setCustomValue();
 
-      blockPictures.addEventListener('click', window.preview.openBigPicture);
+      blockPictures.addEventListener('click', window.preview.onImageClick);
     }
   }
 
   // Открывает форму загрузки изображения.
-  function openUploadForm() {
-    blockPictures.removeEventListener('click', window.preview.openBigPicture);
+  function onInputUploadChange() {
+    blockPictures.removeEventListener('click', window.preview.onImageClick);
     uploadForm.classList.remove('hidden');
     setCustomValue();
 
-    document.addEventListener('keydown', escCloseUploadForm);
-    document.addEventListener('click', onEdgeClickCloseForm);
+    document.addEventListener('keydown', onEscKeydown);
+    document.addEventListener('click', onEdgeClick);
   }
 
   // Закрывает форму загрузки изображения при клике на произвольную область.
-  function onEdgeClickCloseForm(evt) {
+  function onEdgeClick(evt) {
     if (evt.target.className === 'img-upload__overlay') {
       uploadForm.classList.add('hidden');
-      document.addEventListener('keydown', escCloseUploadForm);
-      document.removeEventListener('click', onEdgeClickCloseForm);
-      blockPictures.addEventListener('click', window.preview.openBigPicture);
+      document.addEventListener('keydown', onEscKeydown);
+      document.removeEventListener('click', onEdgeClick);
+      blockPictures.addEventListener('click', window.preview.onImageClick);
     }
   }
 
   // Закрывает форму загрузки изображения.
-  function closeUploadForm() {
+  function onButtonUploadFormClick() {
     uploadForm.classList.add('hidden');
     setCustomValue();
 
-    blockPictures.addEventListener('click', window.preview.openBigPicture);
-    document.addEventListener('keydown', escCloseUploadForm);
-    document.removeEventListener('click', onEdgeClickCloseForm);
+    blockPictures.addEventListener('click', window.preview.onImageClick);
+    document.addEventListener('keydown', onEscKeydown);
+    document.removeEventListener('click', onEdgeClick);
   }
 
   // Открывает форму загрузки изображения при наступлении события 'change'.
-  uploadFile.addEventListener('change', openUploadForm);
+  uploadFile.addEventListener('change', onInputUploadChange);
 
   // Удаляет значение в поле загрузки файла - 'input'.
   uploadFile.addEventListener('click', function () {
@@ -231,10 +233,10 @@
   });
 
   // Закрывает форму загрузки изображения.
-  buttonUploadFormClose.addEventListener('click', closeUploadForm);
+  buttonUploadFormClose.addEventListener('click', onButtonUploadFormClick);
 
   // Обрабатывает переключение фильтра.
-  function useFilter(evt) {
+  function onFilterClick(evt) {
     var target = evt.target;
 
     if (target.tagName === 'INPUT') {
@@ -251,7 +253,7 @@
       effectHandle.style.left = '100%';
       effectLineDepth.style.width = '100%';
 
-      // При переключении фильтра, сбрасывает свойство фильтра на 100%.
+      // При переключении фильтра, сбрасывает свойство фильтра на максимальное значение.
       if (currentEffect.className === 'effects__preview--none') {
         currentEffect.style.filter = '';
       } else if (currentEffect.className === 'effects__preview--chrome') {
@@ -269,21 +271,21 @@
   }
 
   // При клике на первом элементе без эффекта, скрывает слайдер.
-  effectNone.addEventListener('click', addEffectLineHidden);
-  effectNone.addEventListener('blur', removeEffectLineHidden);
+  effectNone.addEventListener('click', onEffectNoneFilterClick);
+  effectNone.addEventListener('blur', onEffectNoneFilterBlur);
 
   // Скрывает слайдер.
-  function addEffectLineHidden() {
+  function onEffectNoneFilterClick() {
     effect.classList.add('visually-hidden');
   }
 
   // Показывает слайдер.
-  function removeEffectLineHidden() {
+  function onEffectNoneFilterBlur() {
     effect.classList.remove('visually-hidden');
   }
 
   // Добавляется обработчик переключения фильтра.
-  effectsList.addEventListener('click', useFilter);
+  effectsList.addEventListener('click', onFilterClick);
 
   // Проверяет наличие в массиве одинаковых элементов.
   // @param {array} valuesArray - Проверяемый массив.
@@ -304,7 +306,7 @@
 
   // Проверяет значение поля 'input', на соответствие заданным условиям.
   // @param {object} evt - Объект события изменения содержимого поля 'input'.
-  function checkInput(evt) {
+  function onFieldHashtagInput(evt) {
     var target = evt.target;
     // Берёт содержимое поля 'input'.
     var stringHashtags = target.value;
@@ -320,19 +322,22 @@
 
     exampleArray.forEach(function (hashtag) {
       var hashtagSymbols = hashtag.split('');
+      var hashtagMaxLength = 20;
+      var hashtagMinLength = 2;
+      var hashtagMaxCount = 5;
 
       if (!answer) {
         switch (hashtag !== '') {
           case ((hashtag.length > 1) && (hashtagSymbols[0] !== '#')):
             answer = 'Хеш-тег начинается с #';
             break;
-          case (hashtagSymbols.length > 20):
+          case (hashtagSymbols.length > hashtagMaxLength):
             answer = 'Длина одного хеш-тега должна быть не более 20 символов';
             break;
-          case (hashtagSymbols.length > 0 && hashtagSymbols.length < 2):
+          case (hashtagSymbols.length > 0 && hashtagSymbols.length < hashtagMinLength):
             answer = 'Длина одного хеш-тега должна быть не менее 2 символов';
             break;
-          case (exampleArray.length > 5):
+          case (exampleArray.length > hashtagMaxCount):
             answer = 'Не более 5 хеш-тегов';
             break;
           case sortArray(exampleArray):
@@ -348,7 +353,7 @@
   }
 
   // Проверяет поле с хеш-тегами на валидность.
-  textHashtag.addEventListener('input', checkInput);
+  textHashtag.addEventListener('input', onFieldHashtagInput);
 
   buttonSubmit.addEventListener('click', function () {
     inputHashtag.style.border = '2px solid red';
@@ -356,21 +361,21 @@
 
   // При фокусе на элементе 'textHashtag' удаляет обработчик закрытия формы по ESC.
   textHashtag.addEventListener('focus', function () {
-    document.removeEventListener('keydown', escCloseUploadForm);
+    document.removeEventListener('keydown', onEscKeydown);
   });
 
   // При фокусе на элементе 'textDescription' удаляет обработчик закрытия формы по ESC.
   textDescription.addEventListener('focus', function () {
-    document.removeEventListener('keydown', escCloseUploadForm);
+    document.removeEventListener('keydown', onEscKeydown);
   });
 
   // При снятии фокуса с элемента 'textHashtag' добавляет обработчик закрытия формы по ESC.
   textHashtag.addEventListener('blur', function () {
-    document.addEventListener('keydown', escCloseUploadForm);
+    document.addEventListener('keydown', onEscKeydown);
   });
 
   // При снятии фокуса с элемента 'textDescription' добавляет обработчик закрытия формы по ESC.
   textDescription.addEventListener('blur', function () {
-    document.addEventListener('keydown', escCloseUploadForm);
+    document.addEventListener('keydown', onEscKeydown);
   });
 })();

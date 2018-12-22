@@ -23,27 +23,29 @@
     cursorStartX = evt.clientX;
     pinStartX = evt.target.offsetLeft;
 
-    document.addEventListener('mousemove', setPinPosition);
+    document.addEventListener('mousemove', onPinMove);
     document.addEventListener('mouseup', function () {
       isDraggable = false;
-      document.removeEventListener('mousemove', setPinPosition);
+      document.removeEventListener('mousemove', onPinMove);
     });
   });
 
   // Расчитывает и устанавливает положение ползунка при drug-n-drop.
   // @param {object} moveEvt - Объект event.
-  function setPinPosition(moveEvt) {
+  function onPinMove(moveEvt) {
     var sliderWidth = effectLine.clientWidth;
     var percentSliderWidth = sliderWidth / 100;
+    var minValuePinX = 0;
+    var maxValuePinX = 100;
 
     if (moveEvt.buttons === 1 && isDraggable) {
       var cursorShiftX = moveEvt.clientX - cursorStartX;
       var pinShiftX = pinStartX + cursorShiftX;
       var pinShiftPercentX = pinShiftX / percentSliderWidth;
 
-      if (pinShiftPercentX > 100) {
+      if (pinShiftPercentX > maxValuePinX) {
         pinShiftPercentX = 100;
-      } else if (pinShiftPercentX < 0) {
+      } else if (pinShiftPercentX < minValuePinX) {
         pinShiftPercentX = 0;
       }
 
@@ -74,7 +76,7 @@
 
   // Расчитывает и устанавливает положение ползунка при клике.
   // @param {object} evt - Объект event.
-  function setSliderPosition(evt) {
+  function onSliderClick(evt) {
     if (evt.target.className === 'effect-level__line' || evt.target.className === 'effect-level__depth') {
       var sliderWidth = effectLine.clientWidth;
       var percentSliderWidth = sliderWidth / 100;
@@ -89,5 +91,5 @@
   }
 
   // Устанавливает положение ползунка и соответствующую глубину эффекта.
-  effectLine.addEventListener('click', setSliderPosition);
+  effectLine.addEventListener('click', onSliderClick);
 })();
