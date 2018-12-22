@@ -2,6 +2,11 @@
 
 (function () {
   var ESC_CODE = 27;
+  var MIN_SCALE_VALUE = 25;
+  var MAX_SCALE_VALUE = 100;
+  var HASHTAG_MAX_LENGTH = 20;
+  var HASHTAG_MIN_LENGTH = 2;
+  var HASHTAG_MAX_COUNT = 5;
   var blockPictures = document.querySelector('.pictures');
 
   var pageMain = document.querySelector('main');
@@ -39,8 +44,6 @@
   // Расчитывает значение поля - 'размер изображения'.
   // @param {object} evt - Объект события, отлавливаемого на кнопках '-/+'.
   function onScaleSizeValueClick(evt) {
-    var minScaleValue = 25;
-    var maxScaleValue = 100;
     // Переводит значение поля 'размер изображения' из процентов в десятичное число.
     var scaleValueInt = parseInt(scaleControlValue.value, 10);
 
@@ -48,14 +51,14 @@
     if (evt.target.classList[1] === 'scale__control--smaller') {
       scaleValuePercent = (scaleValueInt - STEP_CONTROL) + '%';
       // Минимальное значение поля 'размер изображения' равно 25%.
-      if (parseInt(scaleValuePercent, 10) < minScaleValue) {
+      if (parseInt(scaleValuePercent, 10) < MIN_SCALE_VALUE) {
         scaleValuePercent = '25%';
       }
     // Если событие происходит на кнопке '+', увеличивает значение поля 'размер изображения' на величину 'STEP_CONTROL'.
     } else if (evt.target.classList[1] === 'scale__control--bigger') {
       scaleValuePercent = (scaleValueInt + STEP_CONTROL) + '%';
       // Максимальное значение поля 'размер изображения' равно 100%.
-      if (parseInt(scaleValuePercent, 10) > maxScaleValue) {
+      if (parseInt(scaleValuePercent, 10) > MAX_SCALE_VALUE) {
         scaleValuePercent = '100%';
       }
     } else {
@@ -322,22 +325,19 @@
 
     exampleArray.forEach(function (hashtag) {
       var hashtagSymbols = hashtag.split('');
-      var hashtagMaxLength = 20;
-      var hashtagMinLength = 2;
-      var hashtagMaxCount = 5;
 
       if (!answer) {
         switch (hashtag !== '') {
           case ((hashtag.length > 1) && (hashtagSymbols[0] !== '#')):
             answer = 'Хеш-тег начинается с #';
             break;
-          case (hashtagSymbols.length > hashtagMaxLength):
+          case (hashtagSymbols.length > HASHTAG_MAX_LENGTH):
             answer = 'Длина одного хеш-тега должна быть не более 20 символов';
             break;
-          case (hashtagSymbols.length > 0 && hashtagSymbols.length < hashtagMinLength):
+          case (hashtagSymbols.length > 0 && hashtagSymbols.length < HASHTAG_MIN_LENGTH):
             answer = 'Длина одного хеш-тега должна быть не менее 2 символов';
             break;
-          case (exampleArray.length > hashtagMaxCount):
+          case (exampleArray.length > HASHTAG_MAX_COUNT):
             answer = 'Не более 5 хеш-тегов';
             break;
           case sortArray(exampleArray):
